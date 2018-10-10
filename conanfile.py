@@ -17,7 +17,7 @@ EPICS_V4_BINS = ("eget", "pvget", "pvinfo", "pvlist", "pvput", "testServer")
 
 class EpicsbaseConan(ConanFile):
     name = "epics"
-    version = "3.16.1-4.6.0-dm6"
+    version = "3.16.1-4.6.0-dm7"
     license = "EPICS Open license and https://github.com/epics-base/bundleCPP/blob/4.6.0/LICENSE"
     url = "https://github.com/ess-dmsc/conan-epics-base"
     description = "EPICS Base and V4"
@@ -179,13 +179,13 @@ class EpicsbaseConan(ConanFile):
         self.copy("*.dll", dst="bin", src=base_bin_dir)
         self.copy("*", dst="include", src=os.path.join(EPICS_BASE_DIR, "include"),
                   excludes="valgrind/*", keep_path=False)
-        self.copy("*", dst="lib", src=os.path.join(EPICS_BASE_DIR, "lib", arch))
+        self.copy("*", dst="lib", src=os.path.join(EPICS_BASE_DIR, "lib", arch), keep_path=False)
         self.copy("pkgconfig/*", dst="lib", src=os.path.join(EPICS_BASE_DIR, "lib"))
 
         # Package EPICS V4
         for d in EPICS_V4_SUBDIRS:
             self.copy("*", dst="include", src=os.path.join(EPICS_V4_DIR, d, "include"))
-            self.copy("*", dst="lib", src=os.path.join(EPICS_V4_DIR, d, "lib", arch))
+            self.copy("*", dst="lib", src=os.path.join(EPICS_V4_DIR, d, "lib", arch), keep_path=False)
             self.copy("*.dll", dst="bin", src=os.path.join(EPICS_V4_DIR, d, "bin", arch))
         v4_bin_dir = os.path.join(EPICS_V4_DIR, "pvAccessCPP", "bin", arch)
         for b in EPICS_V4_BINS:
