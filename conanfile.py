@@ -8,7 +8,7 @@ EPICS_BASE_DIR = "base-" + EPICS_BASE_VERSION
 # Binaries to include in package
 EPICS_BASE_BINS = ("caRepeater", "caget", "cainfo", "camonitor", "caput")
 
-EPICS_V4_VERSION = "4.6.0"
+EPICS_V4_VERSION = "4.7.0"
 EPICS_V4_DIR = "EPICS-CPP-" + EPICS_V4_VERSION
 EPICS_V4_SUBDIRS = ("normativeTypesCPP", "pvAccessCPP", "pvCommonCPP",
                     "pvDataCPP", "pvDatabaseCPP", "pvaClientCPP", "pvaSrv")
@@ -17,8 +17,8 @@ EPICS_V4_BINS = ("eget", "pvget", "pvinfo", "pvlist", "pvput", "testServer")
 
 class EpicsbaseConan(ConanFile):
     name = "epics"
-    version = "3.16.1-4.6.0-dm7"
-    license = "EPICS Open license and https://github.com/epics-base/bundleCPP/blob/4.6.0/LICENSE"
+    version = EPICS_BASE_VERSION + "-" + EPICS_V4_VERSION
+    license = "EPICS Open license and https://github.com/epics-base/bundleCPP/blob/" + EPICS_V4_VERSION + "/LICENSE"
     url = "https://github.com/ess-dmsc/conan-epics-base"
     description = "EPICS Base and V4"
     exports = "files/*"
@@ -56,7 +56,7 @@ class EpicsbaseConan(ConanFile):
         )
         tools.check_sha256(
             "{}.tar.gz".format(EPICS_V4_DIR),
-            "fc369a1663b197cce23b47762bf3e1aadc49677e01be5063885160de79df6d9c"
+            "7fe41f8e7277b1f195ce9dfc012e458ec5607b5bac56a5308de34e185a2f20fa"
         )
         tools.unzip("{}.tar.gz".format(EPICS_V4_DIR))
         os.unlink("{}.tar.gz".format(EPICS_V4_DIR))
@@ -81,7 +81,7 @@ class EpicsbaseConan(ConanFile):
         os.rename(os.path.join(EPICS_V4_DIR, "LICENSE"), "LICENSE.EPICSV4")
 
         # Build EPICS V4
-        self._edit_epics_v4_makefile()
+        # self._edit_epics_v4_makefile()
         os.environ["EPICS_BASE"] = os.path.join(os.getcwd(), EPICS_BASE_DIR)
         with tools.chdir(EPICS_V4_DIR):
             if tools.os_info.is_windows:
@@ -227,3 +227,4 @@ class EpicsbaseConan(ConanFile):
             "pvDatabase",
             "pvData"
         ]
+
