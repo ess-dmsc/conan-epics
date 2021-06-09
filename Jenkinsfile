@@ -1,6 +1,7 @@
 @Library('ecdc-pipeline')
 import ecdcpipeline.ContainerBuildNode
 import ecdcpipeline.ConanPackageBuilder
+import ecdcpipeline.PipelineBuilder
 
 project = "conan-epics"
 
@@ -11,6 +12,9 @@ containerBuildNodes = [
   'centos': ContainerBuildNode.getDefaultContainerBuildNode('centos7-gcc8'),
   'debian': ContainerBuildNode.getDefaultContainerBuildNode('debian10'),
   'ubuntu': ContainerBuildNode.getDefaultContainerBuildNode('ubuntu1804-gcc8')
+]
+archivingBuildNodes = [
+  'centos-archive': ContainerBuildNode.getDefaultContainerBuildNode('centos7-gcc8')
 ]
 
 packageBuilder = new ConanPackageBuilder(this, containerBuildNodes, conan_pkg_channel)
@@ -25,6 +29,18 @@ builders = packageBuilder.createPackageBuilders { container ->
     ]
   ])
 }
+
+pipelineBuilder = new PipelineBuilder(this, archivingBuildNodes)
+archivingBuilders = pipelineBuilder.createBuilders { container ->
+  pipelineBuilder.stage("${container.key}: Checkout") {
+    dir(pipelineBuilder.project) {
+      scmVars = checkout scm
+    }
+    container.copyTo(pipelineBuilder.project, pipelineBuilder.project)
+  }  // stage
+}
+
+builders = builders + archivingBuilders
 
 node {
   checkout scm
