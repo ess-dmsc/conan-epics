@@ -52,7 +52,12 @@ archivingBuilders = pipelineBuilder.createBuilders { container ->
     container.sh """
       mkdir epics
       cd epics
-      conan install ../${pipelineBuilder.project}/archiving/conanfile.txt
+      conan remote add \
+        --insert 0 \
+        ess-dmsc-local ${local_conan_server}
+      conan install \
+        --options epics:shared=False \
+        ../${pipelineBuilder.project}/archiving/conanfile.txt
       ls -la *
     """
   }  // stage
