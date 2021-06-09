@@ -48,7 +48,7 @@ archivingBuilders = pipelineBuilder.createBuilders { container ->
     container.copyTo(pipelineBuilder.project, pipelineBuilder.project)
   }  // stage
 
-  pipelineBuilder.stage("${container.key}: Install {
+  pipelineBuilder.stage("${container.key}: Install") {
     container.sh """
       mkdir epics
       cd epics
