@@ -30,6 +30,15 @@ builders = packageBuilder.createPackageBuilders { container ->
   ])
 }
 
+node('master') {
+  checkout scm
+
+  builders['macOS'] = get_macos_pipeline()
+  builders['windows10'] = get_win10_pipeline()
+
+  parallel builders
+}
+
 pipelineBuilder = new PipelineBuilder(this, archivingBuildNodes)
 archivingBuilders = pipelineBuilder.createBuilders { container ->
   pipelineBuilder.stage("${container.key}: Checkout") {
@@ -38,17 +47,19 @@ archivingBuilders = pipelineBuilder.createBuilders { container ->
     }
     container.copyTo(pipelineBuilder.project, pipelineBuilder.project)
   }  // stage
+
+  pipelineBuilder.stage("${container.key}: Install {
+    container.sh """
+      mkdir epics
+      cd epics
+      conan install ../${pipelineBuilder.project}/archiving/conanfile.txt
+      ls -la *
+    """
+  }  // stage
 }
 
-builders = builders + archivingBuilders
-
-node {
-  checkout scm
-
-  builders['macOS'] = get_macos_pipeline()
-  builders['windows10'] = get_win10_pipeline()
-
-  parallel builders
+node('master') {
+  parallel archivingBuilders
 
   // Delete workspace when build is done.
   cleanWs()
