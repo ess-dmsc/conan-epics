@@ -8,6 +8,26 @@ project = "conan-epics"
 conan_user = "ess-dmsc"
 conan_pkg_channel = "testing"
 
+def num_artifacts_to_keep
+if (env.BRANCH_NAME == 'master') {
+  num_artifacts_to_keep = '3'
+} else {
+  num_artifacts_to_keep = '1'
+}
+
+// Set number of old builds to keep.
+properties([[
+  $class: 'BuildDiscarderProperty',
+  strategy: [
+    $class: 'LogRotator',
+    artifactDaysToKeepStr: '',
+    artifactNumToKeepStr: num_artifacts_to_keep,
+    daysToKeepStr: '',
+    numToKeepStr: num_artifacts_to_keep
+  ]
+]]);
+
+
 containerBuildNodes = [
   'centos': ContainerBuildNode.getDefaultContainerBuildNode('centos7-gcc8'),
   'debian': ContainerBuildNode.getDefaultContainerBuildNode('debian10'),
@@ -30,15 +50,6 @@ builders = packageBuilder.createPackageBuilders { container ->
   ])
 }
 
-node('master') {
-  checkout scm
-
-  builders['macOS'] = get_macos_pipeline()
-  builders['windows10'] = get_win10_pipeline()
-
-  parallel builders
-}
-
 pipelineBuilder = new PipelineBuilder(this, archivingBuildNodes)
 archivingBuilders = pipelineBuilder.createBuilders { container ->
   pipelineBuilder.stage("${container.key}: Checkout") {
@@ -58,12 +69,33 @@ archivingBuilders = pipelineBuilder.createBuilders { container ->
       conan install \
         --options epics:shared=False \
         ../${pipelineBuilder.project}/archiving/conanfile.txt
-      ls -la *
     """
+  }  // stage
+
+  pipelineBuilder.stage("${container.key}: Archive") {
+    container.sh """
+      # Create file with build information
+      cd epics
+      touch BUILD_INFO
+      echo 'Repository: ${pipeline_builder.project}/${env.BRANCH_NAME}' >> BUILD_INFO
+      echo 'Commit: ${scm_vars.GIT_COMMIT}' >> BUILD_INFO
+      echo 'Jenkins build: ${env.BUILD_NUMBER}' >> BUILD_INFO
+      cd ..
+
+      tar czvf epics.tar.gz epics
+    """
+    container.copyFrom("epics.tar.gz", ".")
+    archiveArtifacts "epics.tar.gz"
   }  // stage
 }
 
 node('master') {
+  checkout scm
+
+  builders['macOS'] = get_macos_pipeline()
+  builders['windows10'] = get_win10_pipeline()
+
+  parallel builders
   parallel archivingBuilders
 
   // Delete workspace when build is done.
