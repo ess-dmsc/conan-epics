@@ -77,7 +77,7 @@ archivingBuilders = pipelineBuilder.createBuilders { container ->
       # Create file with build information
       cd epics
       touch BUILD_INFO
-      echo 'Repository: ${pipeline_builder.project}/${env.BRANCH_NAME}' >> BUILD_INFO
+      echo 'Repository: ${pipelineBuilder.project}/${env.BRANCH_NAME}' >> BUILD_INFO
       echo 'Commit: ${scm_vars.GIT_COMMIT}' >> BUILD_INFO
       echo 'Jenkins build: ${env.BUILD_NUMBER}' >> BUILD_INFO
       cd ..
