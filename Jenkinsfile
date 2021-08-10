@@ -1,9 +1,6 @@
 @Library('ecdc-pipeline')
 import ecdcpipeline.ContainerBuildNode
 import ecdcpipeline.ConanPackageBuilder
-import ecdcpipeline.PipelineBuilder
-
-project = "conan-epics"
 
 conan_user = "ess-dmsc"
 conan_pkg_channel = "testing"
@@ -33,9 +30,6 @@ containerBuildNodes = [
   'debian': ContainerBuildNode.getDefaultContainerBuildNode('debian10'),
   'ubuntu': ContainerBuildNode.getDefaultContainerBuildNode('ubuntu1804-gcc8')
 ]
-archivingBuildNodes = [
-  'centos-archive': ContainerBuildNode.getDefaultContainerBuildNode('centos7-gcc8')
-]
 
 packageBuilder = new ConanPackageBuilder(this, containerBuildNodes, conan_pkg_channel)
 packageBuilder.defineRemoteUploadNode('centos')
@@ -50,45 +44,6 @@ builders = packageBuilder.createPackageBuilders { container ->
   ])
 }
 
-pipelineBuilder = new PipelineBuilder(this, archivingBuildNodes)
-archivingBuilders = pipelineBuilder.createBuilders { container ->
-  pipelineBuilder.stage("${container.key}: Checkout") {
-    dir(pipelineBuilder.project) {
-      scmVars = checkout scm
-    }
-    container.copyTo(pipelineBuilder.project, pipelineBuilder.project)
-  }  // stage
-
-  pipelineBuilder.stage("${container.key}: Install") {
-    container.sh """
-      mkdir epics
-      cd epics
-      conan remote add \
-        --insert 0 \
-        ess-dmsc-local ${local_conan_server}
-      conan install \
-        --options epics:shared=False \
-        ../${pipelineBuilder.project}/archiving/conanfile.txt
-    """
-  }  // stage
-
-  pipelineBuilder.stage("${container.key}: Archive") {
-    container.sh """
-      # Create file with build information
-      cd epics
-      touch BUILD_INFO
-      echo 'Repository: ${pipelineBuilder.project}/${env.BRANCH_NAME}' >> BUILD_INFO
-      echo 'Commit: ${scmVars.GIT_COMMIT}' >> BUILD_INFO
-      echo 'Jenkins build: ${env.BUILD_NUMBER}' >> BUILD_INFO
-      cd ..
-
-      tar czvf epics.tar.gz epics
-    """
-    container.copyFrom("epics.tar.gz", ".")
-    archiveArtifacts "epics.tar.gz"
-  }  // stage
-}
-
 node('master') {
   checkout scm
 
@@ -96,7 +51,6 @@ node('master') {
   builders['windows10'] = get_win10_pipeline()
 
   parallel builders
-  parallel archivingBuilders
 
   // Delete workspace when build is done.
   cleanWs()
@@ -106,7 +60,7 @@ def get_macos_pipeline() {
   return {
     node('macos') {
       cleanWs()
-      dir("${project}") {
+      dir("${pipelineBuilder.project}") {
         stage("macOS: Checkout") {
           checkout scm
         }  // stage
@@ -126,7 +80,7 @@ def get_win10_pipeline() {
       // Use custom location to avoid Win32 path length issues
     ws('c:\\jenkins\\') {
       cleanWs()
-      dir("${project}") {
+      dir("${pipelineBuilder.project}") {
         stage("windows10: Checkout") {
           checkout scm
         }  // stage

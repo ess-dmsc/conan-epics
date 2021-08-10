@@ -1,7 +1,0 @@
-[requires]
-epics/7.0.3.1-dm2@ess-dmsc/stable
-
-[imports]
-bin, * -> ./bin
-lib, * -> ./lib
-., LICENSE* -> ./licenses @ folder=True, ignore_case=True

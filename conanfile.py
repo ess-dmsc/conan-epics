@@ -3,7 +3,7 @@ import shutil
 from conans import ConanFile, AutoToolsBuildEnvironment, tools
 
 
-EPICS_BASE_VERSION = "7.0.3.1"
+EPICS_BASE_VERSION = "7.0.6"
 EPICS_BASE_DIR = "base-" + EPICS_BASE_VERSION
 # Binaries to include in package
 EPICS_BASE_BINS = ("caRepeater", "caget", "cainfo", "camonitor", "caput", "pvget", "pvinfo", "pvlist", "pvput")
@@ -11,7 +11,7 @@ EPICS_BASE_BINS = ("caRepeater", "caget", "cainfo", "camonitor", "caput", "pvget
 
 class EpicsbaseConan(ConanFile):
     name = "epics"
-    version = "7.0.3.1-dm2"
+    version = "7.0.6"
     license = "EPICS Open license"
     url = "https://github.com/ess-dmsc/conan-epics-base"
     description = "EPICS Base version 7"
@@ -25,6 +25,7 @@ class EpicsbaseConan(ConanFile):
 
     def configure(self):
         if not tools.os_info.is_linux:
+            self.output.warn('Removing "shared" option (only available on Linux)')
             self.options.remove("shared")
 
     def source(self):
@@ -32,15 +33,15 @@ class EpicsbaseConan(ConanFile):
 
     def _get_epics_base_src(self):
         tools.download(
-            "https://epics.anl.gov/download/base/{}.tar.gz".format(EPICS_BASE_DIR),
-            "{}.tar.gz".format(EPICS_BASE_DIR)
+            f"https://epics-controls.org/download/base/{EPICS_BASE_DIR}.tar.gz",
+            f"{EPICS_BASE_DIR}.tar.gz"
         )
         tools.check_sha256(
-            "{}.tar.gz".format(EPICS_BASE_DIR),
-            "1de65638a806be6c0eebc0b7840ed9dd1a1a7879bcb6ab0da88a1e8e456b709c"
+            f"{EPICS_BASE_DIR}.tar.gz",
+            "bc1d9edd0624542870424b90baafebe16af17a317b01aec577757e96830deee0"
         )
-        tools.unzip("{}.tar.gz".format(EPICS_BASE_DIR))
-        os.unlink("{}.tar.gz".format(EPICS_BASE_DIR))
+        tools.unzip(f"{EPICS_BASE_DIR}.tar.gz")
+        os.unlink(f"{EPICS_BASE_DIR}.tar.gz")
 
     def build(self):
         # Build EPICS Base
@@ -97,7 +98,18 @@ class EpicsbaseConan(ConanFile):
     def _add_linux_config(self):
         if self.settings.compiler == "gcc" and self._using_devtoolset():
             self._set_path_to_devtoolset_gnu()
-    
+        if not self.options.shared:
+            tools.replace_in_file(
+                os.path.join(EPICS_BASE_DIR, "configure", "CONFIG_SITE"),
+                "SHARED_LIBRARIES=YES",
+                "SHARED_LIBRARIES=NO"
+            )
+            tools.replace_in_file(
+                os.path.join(EPICS_BASE_DIR, "configure", "CONFIG_SITE"),
+                "STATIC_BUILD=NO",
+                "STATIC_BUILD=YES"
+            )
+
     def _using_devtoolset(self):
         gcc_path = tools.which("gcc")
         if gcc_path is not None:
@@ -112,12 +124,12 @@ class EpicsbaseConan(ConanFile):
         tools.replace_in_file(
             os.path.join(EPICS_BASE_DIR, "configure", "CONFIG.gnuCommon"),
             "GNU_BIN = $(GNU_DIR)/bin",
-            "GNU_BIN = {}/bin".format(path_to_gnu)
+            f"GNU_BIN = {path_to_gnu}/bin"
         )
         tools.replace_in_file(
             os.path.join(EPICS_BASE_DIR, "configure", "CONFIG.gnuCommon"),
             "GNU_LIB = $(GNU_DIR)/lib",
-            "GNU_LIB = {}/lib".format(path_to_gnu)
+            f"GNU_LIB = {path_to_gnu}/lib"
         )
 
     def package(self):
