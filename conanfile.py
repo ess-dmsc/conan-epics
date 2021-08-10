@@ -98,6 +98,12 @@ class EpicsbaseConan(ConanFile):
     def _add_linux_config(self):
         if self.settings.compiler == "gcc" and self._using_devtoolset():
             self._set_path_to_devtoolset_gnu()
+            # Disable readline, as not all our build node images have it.
+            tools.replace_in_file(
+                os.path.join(EPICS_BASE_DIR, "configure", "os", "CONFIG_SITE.Common.linux-x86_64"),
+                "#COMMANDLINE_LIBRARY = EPICS",
+                "COMMANDLINE_LIBRARY = EPICS"
+            )
         if not self.options.shared:
             tools.replace_in_file(
                 os.path.join(EPICS_BASE_DIR, "configure", "CONFIG_SITE"),
