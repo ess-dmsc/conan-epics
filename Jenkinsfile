@@ -2,6 +2,7 @@
 import ecdcpipeline.ContainerBuildNode
 import ecdcpipeline.ConanPackageBuilder
 
+project = "conan-epics"
 conan_user = "ess-dmsc"
 conan_pkg_channel = "testing"
 
@@ -60,7 +61,7 @@ def get_macos_pipeline() {
   return {
     node('macos') {
       cleanWs()
-      dir("${pipelineBuilder.project}") {
+      dir("${project}") {
         stage("macOS: Checkout") {
           checkout scm
         }  // stage
@@ -80,7 +81,7 @@ def get_win10_pipeline() {
       // Use custom location to avoid Win32 path length issues
     ws('c:\\jenkins\\') {
       cleanWs()
-      dir("${pipelineBuilder.project}") {
+      dir("${project}") {
         stage("windows10: Checkout") {
           checkout scm
         }  // stage
