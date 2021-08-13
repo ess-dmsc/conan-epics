@@ -28,6 +28,10 @@ class EpicsbaseConan(ConanFile):
             self.output.warn('Removing "shared" option (only available on Linux)')
             self.options.remove("shared")
 
+    def requirements(self):
+        if tools.os_info.is_linux or tools.os_info.is_macos:
+            self.requires("readline/8.0")
+
     def source(self):
         self._get_epics_base_src()
 

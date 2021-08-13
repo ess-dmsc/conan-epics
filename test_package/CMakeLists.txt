@@ -11,7 +11,4 @@ find_package(Threads REQUIRED)
 
 add_executable(example example.cpp)
 target_link_libraries(example ${CONAN_LIBS} ${EPICS_LIBRARIES} Threads::Threads ${CMAKE_DL_LIBS})
-if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
-  target_link_libraries(example readline)
-endif()
 target_include_directories(example PRIVATE ${EPICS_INCLUDE_DIR})
