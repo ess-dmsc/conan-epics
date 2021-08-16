@@ -1,6 +1,7 @@
 @Library('ecdc-pipeline')
 import ecdcpipeline.ContainerBuildNode
 import ecdcpipeline.ConanPackageBuilder
+import ecdcpipeline.PipelineBuilder
 
 project = "conan-epics"
 conan_user = "ess-dmsc"
@@ -25,16 +26,18 @@ properties([[
   ]
 ]]);
 
-
 containerBuildNodes = [
   'centos': ContainerBuildNode.getDefaultContainerBuildNode('centos7-gcc8'),
   'debian': ContainerBuildNode.getDefaultContainerBuildNode('debian10'),
   'ubuntu': ContainerBuildNode.getDefaultContainerBuildNode('ubuntu2004')
 ]
+archivingBuildNodes = [
+  'centos-archive': ContainerBuildNode.getDefaultContainerBuildNode('centos7-gcc8')
+]
 
+// Main packaging pipeline
 packageBuilder = new ConanPackageBuilder(this, containerBuildNodes, conan_pkg_channel)
 packageBuilder.defineRemoteUploadNode('centos')
-
 builders = packageBuilder.createPackageBuilders { container ->
   packageBuilder.addConfiguration(container)
 
@@ -44,6 +47,50 @@ builders = packageBuilder.createPackageBuilders { container ->
     ]
   ])
 }
+
+// Archiving pipeline
+pipelineBuilder = new PipelineBuilder(this, archivingBuildNodes)
+archivingBuilders = pipelineBuilder.createBuilders { container ->
+  pipelineBuilder.stage("${container.key}: Checkout") {
+    dir(pipelineBuilder.project) {
+      scmVars = checkout scm
+    }
+    container.copyTo(pipelineBuilder.project, pipelineBuilder.project)
+  }  // stage
+
+  pipelineBuilder.stage("${container.key}: Install") {
+    container.sh """
+      cd archiving
+      ./generate-conanfile.txt
+
+      conan remote add \
+        --insert 0 \
+        ess-dmsc-local ${local_conan_server}
+
+      mkdir epics
+      cd epics
+      conan install ..
+      ls
+      ls *
+    """
+  }  // stage
+
+  pipelineBuilder.stage("${container.key}: Archive") {
+    container.sh """
+      # Create file with build information
+      cd archiving/epics
+      touch BUILD_INFO
+      echo 'Repository: ${pipelineBuilder.project}/${env.BRANCH_NAME}' >> BUILD_INFO
+      echo 'Commit: ${scmVars.GIT_COMMIT}' >> BUILD_INFO
+      echo 'Jenkins build: ${env.BUILD_NUMBER}' >> BUILD_INFO
+      cd ..
+      tar czvf epics.tar.gz epics
+    """
+    container.copyFrom("archiving/epics.tar.gz", ".")
+    archiveArtifacts "epics.tar.gz"
+  }  // stage
+}
+
 
 node('master') {
   checkout scm
