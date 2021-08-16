@@ -61,7 +61,7 @@ archivingBuilders = pipelineBuilder.createBuilders { container ->
   pipelineBuilder.stage("${container.key}: Install") {
     container.sh """
       cd ${pipelineBuilder.project}/archiving
-      ./generate-conanfile.txt
+      ./generate-conanfile.sh
 
       conan remote add \
         --insert 0 \
