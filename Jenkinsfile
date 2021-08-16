@@ -60,7 +60,7 @@ archivingBuilders = pipelineBuilder.createBuilders { container ->
 
   pipelineBuilder.stage("${container.key}: Install") {
     container.sh """
-      cd archiving
+      cd ${pipelineBuilder.project}/archiving
       ./generate-conanfile.txt
 
       conan remote add \
@@ -78,7 +78,7 @@ archivingBuilders = pipelineBuilder.createBuilders { container ->
   pipelineBuilder.stage("${container.key}: Archive") {
     container.sh """
       # Create file with build information
-      cd archiving/epics
+      cd ${pipelineBuilder.project}/archiving/epics
       touch BUILD_INFO
       echo 'Repository: ${pipelineBuilder.project}/${env.BRANCH_NAME}' >> BUILD_INFO
       echo 'Commit: ${scmVars.GIT_COMMIT}' >> BUILD_INFO
