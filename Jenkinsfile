@@ -70,8 +70,6 @@ archivingBuilders = pipelineBuilder.createBuilders { container ->
       mkdir epics
       cd epics
       conan install ..
-      ls
-      ls *
     """
   }  // stage
 
@@ -83,10 +81,11 @@ archivingBuilders = pipelineBuilder.createBuilders { container ->
       echo 'Repository: ${pipelineBuilder.project}/${env.BRANCH_NAME}' >> BUILD_INFO
       echo 'Commit: ${scmVars.GIT_COMMIT}' >> BUILD_INFO
       echo 'Jenkins build: ${env.BUILD_NUMBER}' >> BUILD_INFO
+
       cd ..
       tar czvf epics.tar.gz epics
     """
-    container.copyFrom("archiving/epics.tar.gz", ".")
+    container.copyFrom("${pipelineBuilder.project}/archiving/epics.tar.gz", ".")
     archiveArtifacts "epics.tar.gz"
   }  // stage
 }
