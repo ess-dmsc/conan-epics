@@ -99,6 +99,7 @@ node('master') {
   builders['windows10'] = get_win10_pipeline()
 
   parallel builders
+  parallel archivingBuilders
 
   // Delete workspace when build is done.
   cleanWs()
