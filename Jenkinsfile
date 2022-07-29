@@ -58,14 +58,14 @@ archivingBuilders = pipelineBuilder.createBuilders { container ->
     container.copyTo(pipelineBuilder.project, pipelineBuilder.project)
   }  // stage
 
+  pipelineBuilder.stage("${container.key}: Configure") {
+    container.setupLocalConanServer()
+  }  // stage
+
   pipelineBuilder.stage("${container.key}: Install") {
     container.sh """
       cd ${pipelineBuilder.project}/archiving
       ./generate-conanfile.sh ${conan_user} ${conan_pkg_channel}
-
-      conan remote add \
-        --insert 0 \
-        ess-dmsc-local ${local_conan_server}
 
       mkdir epics
       cd epics
