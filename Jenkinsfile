@@ -58,10 +58,6 @@ archivingBuilders = pipelineBuilder.createBuilders { container ->
     container.copyTo(pipelineBuilder.project, pipelineBuilder.project)
   }  // stage
 
-  pipelineBuilder.stage("${container.key}: Configure") {
-    container.setupLocalConanServer()
-  }  // stage
-
   pipelineBuilder.stage("${container.key}: Install") {
     container.sh """
       cd ${pipelineBuilder.project}/archiving
