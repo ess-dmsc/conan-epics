@@ -27,12 +27,12 @@ properties([[
 ]]);
 
 containerBuildNodes = [
-  'centos': ContainerBuildNode.getDefaultContainerBuildNode('centos7-gcc8'),
-  'debian': ContainerBuildNode.getDefaultContainerBuildNode('debian10'),
-  'ubuntu': ContainerBuildNode.getDefaultContainerBuildNode('ubuntu2004')
+  'centos': ContainerBuildNode.getDefaultContainerBuildNode('centos7-gcc11'),
+  'debian': ContainerBuildNode.getDefaultContainerBuildNode('debian11'),
+  'ubuntu': ContainerBuildNode.getDefaultContainerBuildNode('ubuntu2204')
 ]
 archivingBuildNodes = [
-  'centos-archive': ContainerBuildNode.getDefaultContainerBuildNode('centos7-gcc8')
+  'centos-archive': ContainerBuildNode.getDefaultContainerBuildNode('centos7-gcc11')
 ]
 
 // Main packaging pipeline
