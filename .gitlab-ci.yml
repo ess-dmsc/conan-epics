@@ -27,7 +27,7 @@ cache:
 checkout:
   stage: checkout
   tags:
-    - ECDC-build
+    - dc-zone
   script:
     - git clone https://gitlab.esss.lu.se/ecdc/ess-dmsc/conan-epics.git
     - cd $PROJECT_NAME
@@ -36,7 +36,7 @@ checkout:
 centos7_build:
   stage: build
   tags:
-    - ECDC-build
+    - dc-zone
   image: centos:7
   script:
     - ./build-script.sh --compiler gcc11
@@ -48,7 +48,7 @@ centos7_build:
 debian11_build:
   stage: build
   tags:
-    - ECDC-build
+    - dc-zone
   image: debian:11
   script:
     - ./build-script.sh --compiler gcc11
@@ -60,7 +60,7 @@ debian11_build:
 ubuntu2204_build:
   stage: build
   tags:
-    - ECDC-build
+    - dc-zone
   image: ubuntu:22.04
   script:
     - ./build-script.sh --compiler gcc11
@@ -73,7 +73,7 @@ ubuntu2204_build:
 macos_build:
   stage: build
   tags:
-    - ECDC-build
+    - dc-zone
   image: apple/Xcode:latest
   script:
     - |
@@ -95,7 +95,7 @@ macos_build:
 archiving:
   stage: archive
   tags:
-    - ECDC-build
+    - dc-zone
   image: centos:7
   script:
     - |
