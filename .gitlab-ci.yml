@@ -1,0 +1,112 @@
+stages:
+  - checkout
+  - build
+  - archive
+
+variables:
+  CONAN_USER: "ess-dmsc"
+  CONAN_PKG_CHANNEL: "stable"
+  PROJECT_NAME: "conan-epics"
+  NUM_ARTIFACTS_TO_KEEP: 1
+
+before_script:
+  - echo "Setting up environment..."
+
+# Define the number of artifacts to keep based on the branch
+before_deploy:
+  - |
+    if [[ "$CI_COMMIT_REF_NAME" == "master" ]]; then
+      export NUM_ARTIFACTS_TO_KEEP=3
+    else
+      export NUM_ARTIFACTS_TO_KEEP=1
+    fi
+
+# Cache Conan dependencies
+cache:
+  paths:
+    - .conan
+
+# Checkout Stage
+checkout:
+  stage: checkout
+  script:
+    - git clone https://gitlab.esss.lu.se/ecdc/ess-dmsc/conan-epics.git
+    - cd $PROJECT_NAME
+
+# Container Build Nodes Stage
+centos7_build:
+  stage: build
+  image: centos:7
+  script:
+    - ./build-script.sh --compiler gcc11
+  artifacts:
+    paths:
+      - build/
+    expire_in: 1 day
+
+debian11_build:
+  stage: build
+  image: debian:11
+  script:
+    - ./build-script.sh --compiler gcc11
+  artifacts:
+    paths:
+      - build/
+    expire_in: 1 day
+
+ubuntu2204_build:
+  stage: build
+  image: ubuntu:22.04
+  script:
+    - ./build-script.sh --compiler gcc11
+  artifacts:
+    paths:
+      - build/
+    expire_in: 1 day
+
+# macOS Build Stage (if enabled)
+macos_build:
+  stage: build
+  image: apple/Xcode:latest
+  script:
+    - |
+      cleanWs()
+      git clone https://gitlab.esss.lu.se/ecdc/ess-dmsc/conan-epics.git
+      cd $PROJECT_NAME
+
+      # macOS: Checkout
+      git checkout $CI_COMMIT_REF_NAME
+
+      # macOS: Package
+      conan create . ${CONAN_USER}/${CONAN_PKG_CHANNEL} --build=outdated
+  only:
+    - master
+  artifacts:
+    paths:
+      - build/
+    expire_in: 1 day
+
+# Archiving Build Node
+archiving:
+  stage: archive
+  image: centos:7
+  script:
+    - |
+      mkdir -p epics
+      cd epics
+      conan install ..
+      touch BUILD_INFO
+      echo "Repository: $CI_PROJECT_NAME/$CI_COMMIT_REF_NAME" >> BUILD_INFO
+      echo "Commit: $CI_COMMIT_SHA" >> BUILD_INFO
+      echo "GitLab build: $CI_JOB_ID" >> BUILD_INFO
+      rm conan*
+      tar czvf epics.tar.gz epics
+  artifacts:
+    paths:
+      - epics.tar.gz
+    expire_in: 1 day
+
+# Clean up after the build
+after_script:
+  - echo "Cleaning workspace"
+  - rm -rf $CI_PROJECT_DIR
