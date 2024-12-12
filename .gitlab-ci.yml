@@ -51,19 +51,19 @@ archiving:
   tags:
     - dc-zone
   image: python:3.8  # Base Docker image with Python pre-installed
-  script:
-    - echo "Installing dependencies..."
-    - pip install --upgrade pip
-    - pip install conan
-    - conan --version
-    - mkdir -p epics
-    - cd epics
-    - conan install ..
-    - touch BUILD_INFO
-    - echo "Repository: $CI_PROJECT_NAME/$CI_COMMIT_REF_NAME" >> BUILD_INFO
-    - echo "Commit: $CI_COMMIT_SHA" >> BUILD_INFO
-    - echo "GitLab build: $CI_JOB_ID" >> BUILD_INFO
-    - tar czvf epics.tar.gz epics
+  script: |
+    echo "Installing dependencies..."
+    pip install --upgrade pip
+    pip install conan
+    conan --version
+    mkdir -p epics
+    cd epics
+    conan install ..
+    touch BUILD_INFO
+    echo "Repository: $CI_PROJECT_NAME/$CI_COMMIT_REF_NAME" >> BUILD_INFO
+    echo "Commit: $CI_COMMIT_SHA" >> BUILD_INFO
+    echo "GitLab build: $CI_JOB_ID" >> BUILD_INFO
+    tar czvf epics.tar.gz epics
 
   artifacts:
     paths:
