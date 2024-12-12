@@ -55,7 +55,7 @@ archiving:
     - echo "Installing dependencies..."
     - pip install --upgrade pip
     - pip install conan
-    - conan --version  # Verify Conan installation
+    - conan --version
     - mkdir -p epics
     - cd epics
     - conan install ..
@@ -64,6 +64,7 @@ archiving:
     - echo "Commit: $CI_COMMIT_SHA" >> BUILD_INFO
     - echo "GitLab build: $CI_JOB_ID" >> BUILD_INFO
     - tar czvf epics.tar.gz epics
+
   artifacts:
     paths:
       - epics.tar.gz
