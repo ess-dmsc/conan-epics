@@ -23,51 +23,51 @@ cache:
   paths:
     - .conan
 
-# Checkout Stage
-checkout:
-  stage: checkout
-  tags:
-    - dc-zone
-  script:
-    - git clone https://gitlab.esss.lu.se/ecdc/ess-dmsc/conan-epics.git
-    - cd $PROJECT_NAME
+# # Checkout Stage
+# checkout:
+#   stage: checkout
+#   tags:
+#     - dc-zone
+#   script:
+#     - git clone https://gitlab.esss.lu.se/ecdc/ess-dmsc/conan-epics.git
+#     - cd $PROJECT_NAME
 
 # Container Build Nodes Stage
-centos7_build:
-  stage: build
-  tags:
-    - dc-zone
-  image: centos:7
-  script:
-    - ./build-script.sh --compiler gcc11
-  artifacts:
-    paths:
-      - build/
-    expire_in: 1 day
+# centos7_build:
+#   stage: build
+#   tags:
+#     - dc-zone
+#   image: centos:7
+#   script:
+#     - ./build-script.sh --compiler gcc11
+#   artifacts:
+#     paths:
+#       - build/
+#     expire_in: 1 day
 
-debian11_build:
-  stage: build
-  tags:
-    - dc-zone
-  image: debian:11
-  script:
-    - ./build-script.sh --compiler gcc11
-  artifacts:
-    paths:
-      - build/
-    expire_in: 1 day
+# debian11_build:
+#   stage: build
+#   tags:
+#     - dc-zone
+#   image: debian:11
+#   script:
+#     - ./build-script.sh --compiler gcc11
+#   artifacts:
+#     paths:
+#       - build/
+#     expire_in: 1 day
 
-ubuntu2204_build:
-  stage: build
-  tags:
-    - dc-zone
-  image: ubuntu:22.04
-  script:
-    - ./build-script.sh --compiler gcc11
-  artifacts:
-    paths:
-      - build/
-    expire_in: 1 day
+# ubuntu2204_build:
+#   stage: build
+#   tags:
+#     - dc-zone
+#   image: ubuntu:22.04
+#   script:
+#     - ./build-script.sh --compiler gcc11
+#   artifacts:
+#     paths:
+#       - build/
+#     expire_in: 1 day
 
 # macOS Build Stage (if enabled)
 macos_build:
