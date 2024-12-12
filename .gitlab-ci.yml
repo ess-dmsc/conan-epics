@@ -98,23 +98,22 @@ archiving:
     - dc-zone
   image: centos:7
   script:
-    - |
-      echo "Installing dependencies..."
-      yum install -y epel-release
-      yum install -y python3 python3-pip
-      pip3 install --upgrade pip
-      pip3 install conan
-      conan --version  # Verify Conan installation
-      ./build-script.sh --compiler gcc11
-      mkdir -p epics
-      cd epics
-      conan install ..
-      touch BUILD_INFO
-      echo "Repository: $CI_PROJECT_NAME/$CI_COMMIT_REF_NAME" >> BUILD_INFO
-      echo "Commit: $CI_COMMIT_SHA" >> BUILD_INFO
-      echo "GitLab build: $CI_JOB_ID" >> BUILD_INFO
-      rm conan*
-      tar czvf epics.tar.gz epics
+    - echo "Installing dependencies..."
+    - sudo yum install -y epel-release
+    - sudo yum install -y python3 python3-pip
+    - pip3 install --upgrade pip
+    - pip3 install conan
+    - conan --version  # Verify Conan installation
+    - ./build-script.sh --compiler gcc11
+    - mkdir -p epics
+    - cd epics
+    - conan install ..
+    - touch BUILD_INFO
+    - echo "Repository: $CI_PROJECT_NAME/$CI_COMMIT_REF_NAME" >> BUILD_INFO
+    - echo "Commit: $CI_COMMIT_SHA" >> BUILD_INFO
+    - echo "GitLab build: $CI_JOB_ID" >> BUILD_INFO
+    - rm conan*
+    - tar czvf epics.tar.gz epics
   artifacts:
     paths:
       - epics.tar.gz
