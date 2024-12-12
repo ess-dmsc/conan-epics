@@ -4,7 +4,7 @@ stages:
   - archive
 
 variables:
-  : "ess-dmsc"
+  CONAN_USER: "ess-dmsc"
   CONAN_PKG_CHANNEL: "stable"
   PROJECT_NAME: "conan-epics"
   NUM_ARTIFACTS_TO_KEEP: 1
