@@ -53,6 +53,14 @@ archiving:
   image: centos:7
   script: |
     echo "Installing dependencies..."
+    # Install pip if it's not already installed
+    if ! command -v pip &> /dev/null; then
+      echo "pip not found, installing pip..."
+      yum install -y epel-release
+      yum install -y python3-pip
+    fi
+    # Install Conan
+    pip install conan
     pwd
     cd archiving
     ./generate-conanfile.sh ${CONAN_USER} ${CONAN_PKG_CHANNEL} 
