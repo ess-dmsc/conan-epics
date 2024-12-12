@@ -53,6 +53,9 @@ archiving:
   image: centos:7
   script: |
     echo "Installing dependencies..."
+    # Use a different mirror to update repositories
+    sed -i 's|mirrorlist=http://mirrorlist.centos.org|#mirrorlist=http://mirrorlist.centos.org|' /etc/yum.repos.d/CentOS-Base.repo
+    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://mirror.centos.org|' /etc/yum.repos.d/CentOS-Base.repo
     # Install pip if it's not already installed
     if ! command -v pip &> /dev/null; then
       echo "pip not found, installing pip..."
