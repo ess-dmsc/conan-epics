@@ -53,7 +53,11 @@ archiving:
   image: python:3.8-slim
   script: |
     echo "Installing dependencies..."
-    
+
+    # Install pip
+    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+    python get-pip.py
+
     # Install Conan
     pip install conan
     # Install Conan
