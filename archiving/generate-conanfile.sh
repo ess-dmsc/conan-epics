@@ -6,8 +6,8 @@
 pkg_user="$1"
 pkg_channel="$2"
 
-pkg_name=$(conan inspect --raw name ..)
-pkg_version=$(conan inspect --raw version ..)
+pkg_name=$(conan inspect .. --format text | grep '^name:' | awk '{print $2}')
+pkg_version=$(conan inspect .. --format text | grep '^version:' | awk '{print $2}')
 
 cat > conanfile.txt <<EOF
 [requires]
