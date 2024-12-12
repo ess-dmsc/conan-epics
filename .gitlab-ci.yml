@@ -26,6 +26,8 @@ cache:
 # Checkout Stage
 checkout:
   stage: checkout
+  tags:
+    - ECDC-build
   script:
     - git clone https://gitlab.esss.lu.se/ecdc/ess-dmsc/conan-epics.git
     - cd $PROJECT_NAME
@@ -33,6 +35,8 @@ checkout:
 # Container Build Nodes Stage
 centos7_build:
   stage: build
+  tags:
+    - ECDC-build
   image: centos:7
   script:
     - ./build-script.sh --compiler gcc11
@@ -43,6 +47,8 @@ centos7_build:
 
 debian11_build:
   stage: build
+  tags:
+    - ECDC-build
   image: debian:11
   script:
     - ./build-script.sh --compiler gcc11
@@ -53,6 +59,8 @@ debian11_build:
 
 ubuntu2204_build:
   stage: build
+  tags:
+    - ECDC-build
   image: ubuntu:22.04
   script:
     - ./build-script.sh --compiler gcc11
@@ -64,6 +72,8 @@ ubuntu2204_build:
 # macOS Build Stage (if enabled)
 macos_build:
   stage: build
+  tags:
+    - ECDC-build
   image: apple/Xcode:latest
   script:
     - |
@@ -84,6 +94,8 @@ macos_build:
 # Archiving Build Node
 archiving:
   stage: archive
+  tags:
+    - ECDC-build
   image: centos:7
   script:
     - |
@@ -103,5 +115,7 @@ archiving:
 
 # Clean up after the build
 after_script:
+  tags:
+    - ECDC-build
   - echo "Cleaning workspace"
   - rm -rf $CI_PROJECT_DIR
