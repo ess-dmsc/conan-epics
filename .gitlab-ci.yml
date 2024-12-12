@@ -23,52 +23,6 @@ cache:
   paths:
     - .conan
 
-# # Checkout Stage
-# checkout:
-#   stage: checkout
-#   tags:
-#     - dc-zone
-#   script:
-#     - git clone https://gitlab.esss.lu.se/ecdc/ess-dmsc/conan-epics.git
-#     - cd $PROJECT_NAME
-
-# Container Build Nodes Stage
-# centos7_build:
-#   stage: build
-#   tags:
-#     - dc-zone
-#   image: centos:7
-#   script:
-#     - ./build-script.sh --compiler gcc11
-#   artifacts:
-#     paths:
-#       - build/
-#     expire_in: 1 day
-
-# debian11_build:
-#   stage: build
-#   tags:
-#     - dc-zone
-#   image: debian:11
-#   script:
-#     - ./build-script.sh --compiler gcc11
-#   artifacts:
-#     paths:
-#       - build/
-#     expire_in: 1 day
-
-# ubuntu2204_build:
-#   stage: build
-#   tags:
-#     - dc-zone
-#   image: ubuntu:22.04
-#   script:
-#     - ./build-script.sh --compiler gcc11
-#   artifacts:
-#     paths:
-#       - build/
-#     expire_in: 1 day
-
 # macOS Build Stage (if enabled)
 macos_build:
   stage: build
@@ -96,15 +50,12 @@ archiving:
   stage: archive
   tags:
     - dc-zone
-  image: centos:7
+  image: python:3.8  # Base Docker image with Python pre-installed
   script:
     - echo "Installing dependencies..."
-    - sudo yum install -y epel-release
-    - sudo yum install -y python3 python3-pip
-    - pip3 install --upgrade pip
-    - pip3 install conan
+    - pip install --upgrade pip
+    - pip install conan
     - conan --version  # Verify Conan installation
-    - ./build-script.sh --compiler gcc11
     - mkdir -p epics
     - cd epics
     - conan install ..
@@ -112,7 +63,6 @@ archiving:
     - echo "Repository: $CI_PROJECT_NAME/$CI_COMMIT_REF_NAME" >> BUILD_INFO
     - echo "Commit: $CI_COMMIT_SHA" >> BUILD_INFO
     - echo "GitLab build: $CI_JOB_ID" >> BUILD_INFO
-    - rm conan*
     - tar czvf epics.tar.gz epics
   artifacts:
     paths:
