@@ -53,14 +53,11 @@ archiving:
   image: centos:7
   script: |
     echo "Installing dependencies..."
-    # Use a different mirror to update repositories
-    sed -i 's|mirrorlist=http://mirrorlist.centos.org|#mirrorlist=http://mirrorlist.centos.org|' /etc/yum.repos.d/CentOS-Base.repo
-    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://mirror.centos.org|' /etc/yum.repos.d/CentOS-Base.repo
     # Install pip if it's not already installed
     if ! command -v pip &> /dev/null; then
       echo "pip not found, installing pip..."
-      yum install -y epel-release
-      yum install -y python3-pip
+      curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+      python3 get-pip.py
     fi
     # Install Conan
     pip install conan
