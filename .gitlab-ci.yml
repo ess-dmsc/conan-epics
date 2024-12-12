@@ -53,12 +53,19 @@ archiving:
   image: centos:7
   script: |
     echo "Installing dependencies..."
-    # Install pip if it's not already installed
-    if ! command -v pip &> /dev/null; then
-      echo "pip not found, installing pip..."
-      curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-      python3 get-pip.py
+    # Install Python 3.8 if it's not already installed
+    if ! command -v python3 &> /dev/null; then
+      echo "Python 3 not found, installing Python 3.8..."
+      yum -y groupinstall "Development Tools"
+      yum -y install gcc
+      yum -y install https://centos7.iuscommunity.org/ius-release.rpm
+      yum -y install python38 python38-devel
+      alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 1
+      alternatives --set python3 /usr/bin/python3.8
     fi
+    # Install pip for Python 3.8
+    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+    python3 get-pip.py
     # Install Conan
     pip install conan
     pwd
