@@ -99,6 +99,13 @@ archiving:
   image: centos:7
   script:
     - |
+      echo "Installing dependencies..."
+      yum install -y epel-release
+      yum install -y python3 python3-pip
+      pip3 install --upgrade pip
+      pip3 install conan
+      conan --version  # Verify Conan installation
+      ./build-script.sh --compiler gcc11
       mkdir -p epics
       cd epics
       conan install ..
