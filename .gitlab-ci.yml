@@ -53,6 +53,10 @@ archiving:
   image: centos:7
   script: |
     echo "Installing dependencies..."
+
+    # Install sudo (if necessary)
+    yum install -y sudo
+    
     # Install Python 3.8 if it's not already installed
     if ! command -v python3.8 &> /dev/null; then
       echo "Python 3.8 not found, installing Python 3.8..."
