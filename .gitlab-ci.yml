@@ -4,7 +4,7 @@ stages:
   - archive
 
 variables:
-  CONAN_USER: "ess-dmsc"
+  : "ess-dmsc"
   CONAN_PKG_CHANNEL: "stable"
   PROJECT_NAME: "conan-epics"
   NUM_ARTIFACTS_TO_KEEP: 1
@@ -50,14 +50,13 @@ archiving:
   stage: archive
   tags:
     - dc-zone
-  image: python:3.8  # Base Docker image with Python pre-installed
+  image: centos:7
   script: |
     echo "Installing dependencies..."
-    apt-get update && apt-get install -y python3-pip
-    pip install --upgrade pip
-    pip install conan
-    conan --version
-    mkdir -p epics
+    pwd
+    cd archiving
+    ./generate-conanfile.sh ${CONAN_USER} ${CONAN_PKG_CHANNEL} 
+    mkdir epics
     cd epics
     conan install ..
     touch BUILD_INFO
