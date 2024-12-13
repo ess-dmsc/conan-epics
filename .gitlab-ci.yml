@@ -65,6 +65,8 @@ archiving:
     pip install conan
     pwd #/builds/ecdc/ess-dmsc/conan-epics
     cd archiving
+    conan inspect --raw name ..
+    conan inspect --raw version ..
     ./generate-conanfile.sh "${CONAN_USER}" "${CONAN_PKG_CHANNEL}" 
     cat conanfile.txt 
     mkdir epics
