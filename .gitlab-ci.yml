@@ -62,7 +62,7 @@ archiving:
     python get-pip.py
 
     # Install Conan
-    pip install conan
+    pip install conan==1.65
     pwd #/builds/ecdc/ess-dmsc/conan-epics
     cd archiving
     conan inspect --raw name ..
