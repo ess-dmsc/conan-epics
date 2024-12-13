@@ -66,6 +66,7 @@ archiving:
     pwd #/builds/ecdc/ess-dmsc/conan-epics
     cd archiving
     ./generate-conanfile.sh ${CONAN_USER} ${CONAN_PKG_CHANNEL} 
+    cat conanfile.txt 
     mkdir epics
     cd epics
     conan install ..
