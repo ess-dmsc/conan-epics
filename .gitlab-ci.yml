@@ -50,7 +50,7 @@ archiving:
   stage: archive
   tags:
     - dc-zone 
-    image: centos:7
+  image: centos:7
   script: |
     echo "Installing dependencies..."
 
