@@ -50,7 +50,7 @@ archiving:
   stage: archive
   tags:
     - dc-zone 
-  image: centos:7
+  image: centos:7.9.2009
   script: |
     echo "Installing dependencies..."
     # Check who is running the script
