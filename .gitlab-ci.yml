@@ -56,8 +56,8 @@ archiving:
     echo "Installing dependencies..."
     
     # Fix CentOS repository issue
-    sed -i 's/^mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Base.repo
-    sed -i 's/^#baseurl=http:\/\/mirror.centos.org/baseurl=http:\/\/mirror.centos.org\/centos\/7\/os\/x86_64\/' /etc/yum.repos.d/CentOS-Base.repo
+    sed -i 's#^#baseurl=http://mirror.centos.org/baseurl=http://mirror.centos.org/centos/7/os/x86_64/#' /etc/yum.repos.d/CentOS-Base.repo
+    sed -i 's#^mirrorlist#mirrorlist#' /etc/yum.repos.d/CentOS-Base.repo
 
     # Update and install required packages
     yum update -y
