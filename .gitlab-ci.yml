@@ -24,26 +24,26 @@ cache:
     - .conan
 
 # macOS Build Stage (if enabled)
-macos_build:
-  stage: build
-  tags:
-    - dc-zone
-  image: apple/Xcode:latest
-  script:
-    - |
-      rm -rf $PROJECT_NAME  # Clean up previous clone if any
-      git clone https://gitlab.esss.lu.se/ecdc/ess-dmsc/conan-epics.git
-      cd $PROJECT_NAME
-      git checkout $CI_COMMIT_REF_NAME
+# macos_build:
+#   stage: build
+#   tags:
+#     - dc-zone
+#   image: apple/Xcode:latest
+#   script:
+#     - |
+#       rm -rf $PROJECT_NAME  # Clean up previous clone if any
+#       git clone https://gitlab.esss.lu.se/ecdc/ess-dmsc/conan-epics.git
+#       cd $PROJECT_NAME
+#       git checkout $CI_COMMIT_REF_NAME
 
-      # macOS: Package
-      conan create . ${CONAN_USER}/${CONAN_PKG_CHANNEL} --build=outdated
-  only:
-    - master
-  artifacts:
-    paths:
-      - build/
-    expire_in: 1 day
+#       # macOS: Package
+#       conan create . ${CONAN_USER}/${CONAN_PKG_CHANNEL} --build=outdated
+#   only:
+#     - master
+#   artifacts:
+#     paths:
+#       - build/
+#     expire_in: 1 day
 
 # Archiving Build Node
 archiving:
