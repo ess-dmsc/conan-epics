@@ -50,51 +50,22 @@ archiving:
   stage: archive
   tags:
     - dc-zone 
-  image: centos:7
-  script: |
-    # No sudo needed, run as the default user
-    echo "Installing dependencies..."
-    
-    # Fix CentOS repository issue
-    #sed -i 's#^#baseurl=http://mirror.centos.org/baseurl=http://mirror.centos.org/centos/7/os/x86_64/#' /etc/yum.repos.d/CentOS-Base.repo
-    #sed -i 's#^mirrorlist#mirrorlist#' /etc/yum.repos.d/CentOS-Base.repo
+  image: registry.esss.lu.se/ecdc/ess-dmsc/docker-centos7-build-node:12.3.0
+  script:
+    - echo "Installing dependencies..."
+    - |
+      scl enable devtoolset-11 rh-python38 -- /bin/bash -e -x <<EOF
+        echo "Repository: $CI_PROJECT_NAME/$CI_COMMIT_REF_NAME" > BUILD_INFO
+        echo "Commit: $CI_COMMIT_SHA" >> BUILD_INFO
+        echo "GitLab build: $CI_JOB_ID" >> BUILD_INFO
 
-    # Update and install required packages
-    yum update -y
-    yum install -y curl centos-release-scl rh-python38
+        mkdir epics
+        cd epics
 
-    # Enable devtoolset and install pip
-    scl enable rh-python38 devtoolset-11 bash << 'INNER_EOF'
-      # Install pip
-      curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-      python get-pip.py
-
-      # Install Conan
-      pip install conan==1.65
-    INNER_EOF
-
-    # STAGE::Archive 
-    cd archiving/epics
-    touch BUILD_INFO
-    echo 'Repository: ${pipelineBuilder.project}/${env.BRANCH_NAME}' >> BUILD_INFO
-    echo 'Commit: ${scmVars.GIT_COMMIT}' >> BUILD_INFO
-    echo 'Jenkins build: ${env.BUILD_NUMBER}' >> BUILD_INFO
-    #conan create . ess-dmsc/stable --build=outdated
-    
-    #TODO: 
-    #conan user --password '\'****\'' --remote ecdc-conan-release ecdc
-    #conan upload epics/x.y.z-dm1@ess-dmsc/stable --remote alias_of_repository
-    cd archiving
-    ./generate-conanfile.sh "${CONAN_USER}" "${CONAN_PKG_CHANNEL}" 
-    cat conanfile.txt
-    mkdir epics
-    cd epics
-    conan install ..
-    touch BUILD_INFO
-    echo "Repository: $CI_PROJECT_NAME/$CI_COMMIT_REF_NAME" >> BUILD_INFO
-    echo "Commit: $CI_COMMIT_SHA" >> BUILD_INFO
-    echo "GitLab build: $CI_JOB_ID" >> BUILD_INFO
-    tar czvf epics.tar.gz epics
+        # Conan operations
+        conan install ..
+        tar czvf epics.tar.gz .
+      EOF
 
   artifacts:
     paths:
