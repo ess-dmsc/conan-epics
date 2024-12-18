@@ -50,22 +50,16 @@ archiving:
   stage: archive
   tags:
     - dc-zone 
-  image: registry.esss.lu.se/ecdc/ess-dmsc/docker-centos7-build-node:12.3.0
+    image: centos:7
   script: |
     echo "Installing dependencies..."
-    # Ensure we are running as root
-    echo "Switching to root user..."
-    sudo su
 
-    # Install SCL (Software Collections) and enable Python 3.8
-    yum install -y centos-release-scl
-    yum install -y rh-python38
+    # Update and install required packages as root
+    yum update -y
+    yum install -y curl centos-release-scl rh-python38
 
-    # Use SCL to enable Python 3.8 and devtoolset-11
+    # Enable devtoolset and install pip
     scl enable rh-python38 devtoolset-11 -- bash -e -x << EOF
-      yum update -y
-      yum install -y curl
-
       # Install pip
       curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
       python get-pip.py
