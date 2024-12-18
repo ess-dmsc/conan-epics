@@ -53,16 +53,19 @@ archiving:
   image: registry.esss.lu.se/ecdc/ess-dmsc/docker-centos7-build-node:12.3.0
   script: |
     echo "Installing dependencies..."
+   # Switch to root user to perform system package installs
+    echo "Switching to root user..."
+    whoami  # Verify user
+    export USER=root
 
-    # Install SCL (Software Collections) and enable Python 3.8 as root
-    sudo yum install -y centos-release-scl
-    sudo yum install -y rh-python38
+    # Install SCL (Software Collections) and enable Python 3.8
+    yum install -y centos-release-scl
+    yum install -y rh-python38
 
     # Use SCL to enable Python 3.8 and devtoolset-11
-    sudo scl enable rh-python38 devtoolset-11 -- bash -e -x << EOF
-      # Update package manager and install curl
-      sudo yum update -y
-      sudo yum install -y curl
+    scl enable rh-python38 devtoolset-11 -- bash -e -x << EOF
+      yum update -y
+      yum install -y curl
 
       # Install pip
       curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
@@ -71,8 +74,6 @@ archiving:
       # Install Conan
       pip install conan==1.65
     EOF
-
-    pwd
     
     # STAGE::Archive 
     cd archiving/epics
