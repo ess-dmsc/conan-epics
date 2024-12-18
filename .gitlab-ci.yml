@@ -53,7 +53,7 @@ archiving:
   image: centos:7
   script: |
     # Switch to root user (if possible)
-    sudo su - root <<EOF
+    sudo su - root <<'EOF'
       echo "Installing dependencies..."
       
       # Fix CentOS repository issue
@@ -65,14 +65,15 @@ archiving:
       yum install -y curl centos-release-scl rh-python38
 
       # Enable devtoolset and install pip
-      scl enable rh-python38 devtoolset-11 -- bash -e -x << EOF
+      scl enable rh-python38 devtoolset-11 bash << 'INNER_EOF'
         # Install pip
         curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
         python get-pip.py
-
+        
         # Install Conan
         pip install conan==1.65
-      EOF
+      INNER_EOF
+    EOF
 
     # STAGE::Archive 
     cd archiving/epics
