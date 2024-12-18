@@ -64,10 +64,12 @@ archiving:
 
         # Conan operations
         conan install ..
-
-        ls
-        tar czvf epics.tar.gz .
-        ls
+        mkdir -p ../static_epics
+        cp -R . ../static_epics
+        cd ../static_epics
+        tar czvf ../epics.tar.gz .
+        cd ..
+        rm -rf ../static_epics
       EOF
 
   artifacts:
