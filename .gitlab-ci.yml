@@ -64,7 +64,10 @@ archiving:
 
         # Conan operations
         conan install ..
+
+        ls
         tar czvf epics.tar.gz .
+        ls
       EOF
 
   artifacts:
