@@ -50,7 +50,10 @@ archiving:
   stage: archive
   tags:
     - dc-zone 
-  image: centos:7.9.2009
+  image: 
+    name: centos:7
+    entrypoint: ["/usr/bin/scl", "enable", "devtoolset-11", "rh-python38", "--", "/bin/bash", "-e", "-x"]
+    user: root
   script: |
     echo "Installing dependencies..."
     # Check who is running the script
