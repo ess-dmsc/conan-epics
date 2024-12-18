@@ -54,9 +54,13 @@ archiving:
   script: |
     echo "Installing dependencies..."
 
-    # Use Software Collections (SCL) to enable devtoolset-11 and Python 3.8
-    scl enable devtoolset-11 rh-python38 -- bash -e -x << EOF
-      # Update package manager and install required tools
+
+    # Install SCL (Software Collections) and enable Python 3.8
+    yum install -y centos-release-scl
+    yum install -y rh-python38
+
+    # Use SCL to enable Python 3.8 and devtoolset-11
+    scl enable rh-python38 devtoolset-11 -- bash -e -x << EOF
       yum update -y
       yum install -y curl
 
