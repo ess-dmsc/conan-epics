@@ -53,7 +53,7 @@ archiving:
   image: registry.esss.lu.se/ecdc/ess-dmsc/docker-centos7-build-node:12.3.0
   script: |
     echo "Installing dependencies..."
-   # Switch to root user to perform system package installs
+    # Switch to root user to perform system package installs
     echo "Switching to root user..."
     whoami  # Verify user
     export USER=root
