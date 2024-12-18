@@ -80,4 +80,4 @@ archiving:
 # Clean up after the build
 after_script:
   - echo "Cleaning workspace"
-  - rm -rf $CI_PROJECT_DIR
+# - rm -rf $CI_PROJECT_DIR
