@@ -49,22 +49,24 @@ macos_build:
 archiving:
   stage: archive
   tags:
-    - dc-zone
-  image: python:3.8
+    - dc-zone 
+  image: registry.esss.lu.se/ecdc/ess-dmsc/docker-centos7-build-node:12.3.0
   script: |
-    # STAGE::Install 
     echo "Installing dependencies..."
 
-    # Update package manager and install curl
-    apt-get update && apt-get install -y curl
+    # Use Software Collections (SCL) to enable devtoolset-11 and Python 3.8
+    scl enable devtoolset-11 rh-python38 -- bash -e -x << EOF
+      # Update package manager and install required tools
+      yum update -y
+      yum install -y curl
 
-    # Install pip
-    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-    python get-pip.py
+      # Install pip
+      curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+      python get-pip.py
 
-    # Install Conan
-    pip install conan==1.65
-    pwd #REMOVE: /builds/ecdc/ess-dmsc/conan-epics
+      # Install Conan
+      pip install conan==1.65
+    EOF
     
     # STAGE::Archive 
     cd archiving/epics
