@@ -53,6 +53,14 @@ archiving:
   image: centos:7
   script: |
     echo "Installing dependencies..."
+    # Check who is running the script
+    whoami
+
+    # If not running as root, switch to root user explicitly (if possible)
+    if [[ "$(whoami)" != "root" ]]; then
+      echo "Not running as root, aborting..."
+      exit 1
+    fi
 
     # Update and install required packages as root
     yum update -y
