@@ -50,35 +50,30 @@ archiving:
   stage: archive
   tags:
     - dc-zone 
-  image: 
-    name: centos:7
-    entrypoint: ["/usr/bin/scl", "enable", "devtoolset-11", "rh-python38", "--", "/bin/bash", "-e", "-x"]
-    user: root
+  image: centos:7
   script: |
-    echo "Installing dependencies..."
-    # Check who is running the script
-    whoami
+    # Switch to root user (if possible)
+    sudo su - root <<EOF
+      echo "Installing dependencies..."
+      
+      # Fix CentOS repository issue
+      sed -i 's/^mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Base.repo
+      sed -i 's/^#baseurl=http:\/\/mirror.centos.org/baseurl=http:\/\/mirror.centos.org\/centos\/7\/os\/x86_64\/' /etc/yum.repos.d/CentOS-Base.repo
 
-    # If not running as root, switch to root user explicitly (if possible)
-    if [[ "$(whoami)" != "root" ]]; then
-      echo "Not running as root, aborting..."
-      exit 1
-    fi
+      # Update and install required packages as root
+      yum update -y
+      yum install -y curl centos-release-scl rh-python38
 
-    # Update and install required packages as root
-    yum update -y
-    yum install -y curl centos-release-scl rh-python38
+      # Enable devtoolset and install pip
+      scl enable rh-python38 devtoolset-11 -- bash -e -x << EOF
+        # Install pip
+        curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+        python get-pip.py
 
-    # Enable devtoolset and install pip
-    scl enable rh-python38 devtoolset-11 -- bash -e -x << EOF
-      # Install pip
-      curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-      python get-pip.py
+        # Install Conan
+        pip install conan==1.65
+      EOF
 
-      # Install Conan
-      pip install conan==1.65
-    EOF
-    
     # STAGE::Archive 
     cd archiving/epics
     touch BUILD_INFO
