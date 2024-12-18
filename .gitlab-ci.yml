@@ -52,6 +52,7 @@ archiving:
     - dc-zone
   image: python:3.8-slim
   script: |
+    # STAGE::Install 
     echo "Installing dependencies..."
 
     # Update package manager and install curl
@@ -64,7 +65,13 @@ archiving:
     # Install Conan
     pip install conan==1.65
     pwd #REMOVE: /builds/ecdc/ess-dmsc/conan-epics
-
+    
+    # STAGE::Archive 
+    cd archiving/epics
+    touch BUILD_INFO
+    echo 'Repository: ${pipelineBuilder.project}/${env.BRANCH_NAME}' >> BUILD_INFO
+    echo 'Commit: ${scmVars.GIT_COMMIT}' >> BUILD_INFO
+    echo 'Jenkins build: ${env.BUILD_NUMBER}' >> BUILD_INFO
     #conan create . ess-dmsc/stable --build=outdated
     
     #TODO: 
@@ -72,7 +79,7 @@ archiving:
     #conan upload epics/x.y.z-dm1@ess-dmsc/stable --remote alias_of_repository
     cd archiving
     ./generate-conanfile.sh "${CONAN_USER}" "${CONAN_PKG_CHANNEL}" 
-    #cat conanfile.txt
+    cat conanfile.txt
     mkdir epics
     cd epics
     conan install ..
