@@ -103,6 +103,10 @@ archiving:
         remote_options=\$(jq -r '.results[0].options' remote_info.json)
         remote_settings=\$(jq -r '.results[0].settings' remote_info.json)
 
+        # Print values to the screen
+        echo "Remote options: \$remote_options"
+        echo "Remote settings: \$remote_settings"
+
         if [[ "\$local_options" != "\$remote_options" || "\$local_settings" != "\$remote_settings" ]]; then
           echo "UPLOAD!"
           #echo "Differences found between local and remote packages. Uploading..."
