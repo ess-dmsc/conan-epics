@@ -89,7 +89,7 @@ archiving:
         echo "Archiving..."
 
         # TODO: REMOVE: ensuring that package exist
-        conan search epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}" -r=ecdc-conan-external --table=table.html
+        #conan search epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}" -r=ecdc-conan-external --table=table.html
         echo "conan remote list"
         conan remote list
         #conan remote update ecdc-conan-external <new-url>
