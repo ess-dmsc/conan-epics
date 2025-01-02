@@ -89,10 +89,10 @@ archiving:
         echo "Archiving..."
 
         # TODO: REMOVE: ensuring that package exist
-        conan search epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}" -r=ecdc-conan-release --table=table.html
+        conan search epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}" -r=ecdc-conan-external --table=table.html
         echo "conan remote list"
         conan remote list
-        #conan remote update ecdc-conan-release <new-url>
+        #conan remote update ecdc-conan-external <new-url>
 
         # TODO: Conan upload test
         # Set ${conanUploadFlag}
@@ -106,9 +106,9 @@ archiving:
         echo "local_options: \$local_options"
 
         # Fetch remote package info
-        conan search epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}" -r=ecdc-conan-release --json=remote_info.json || {
+        conan search epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}" -r=ecdc-conan-extenral --json=remote_info.json || {
           echo "Remote package not found. Uploading..."
-          conan upload --no-overwrite --remote ecdc-conan-release epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}" --all
+          conan upload --no-overwrite --remote ecdc-conan-external epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}" --all
           exit 0
         }
 
@@ -118,7 +118,7 @@ archiving:
         
         # Check if the results array is empty
         if [[ \$(jq '.results | length' remote_info.json) -eq 0 ]]; then
-          echo "No packages found for reference 'epics/7.0.6@${CONAN_USER}/${CONAN_PKG_CHANNEL}' in remote 'ecdc-conan-release'."
+          echo "No packages found for reference 'epics/7.0.6@${CONAN_USER}/${CONAN_PKG_CHANNEL}' in remote 'ecdc-conan-external'."
           remote_options="null"
           remote_settings="null"
         else
@@ -133,12 +133,12 @@ archiving:
 
         if [[ "\$local_options" != "\$remote_options" || "\$local_settings" != "\$remote_settings" ]]; then
           echo "Differences found between local and remote packages. Uploading..."
-          conan upload --no-overwrite --remote ecdc-conan-release epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}" --all
+          conan upload --no-overwrite --remote ecdc-conan-external epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}" --all
         else
           echo "No differences found. Skipping upload."
         fi
 
-        # conan upload --no-overwrite --remote ecdc-conan-release epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}"
+        # conan upload --no-overwrite --remote ecdc-conan-external epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}"
 
         # Stage Archive
         echo "Repository: $CI_PROJECT_NAME/$CI_COMMIT_REF_NAME" > BUILD_INFO
