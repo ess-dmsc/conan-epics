@@ -50,6 +50,7 @@ archiving:
   stage: archive
   tags:
     - dc-zone 
+    - docker
   image: registry.esss.lu.se/ecdc/ess-dmsc/docker-centos7-build-node:12.3.0
   script:
     - echo "Installing dependencies..."
@@ -84,6 +85,11 @@ archiving:
 
         cd ..
         tar czvf ../epics.tar.gz epics
+        # TODO: Remove debug
+        pwd
+
+        cd ..
+        pwd
       EOF
 
   artifacts:
