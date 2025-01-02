@@ -76,7 +76,7 @@ archiving:
         set +x conan user --password $ESS_ARTIFACTORY_ECDC_CONAN_TOKEN --remote ecdc-conan-external ecdc > /dev/null
 
         # TODO: ensuring build packages Conan operations
-        conan install .. --build=epics
+        conan install .. 
 
         echo "Archiving..."
 
@@ -124,14 +124,13 @@ archiving:
         echo "Remote settings: \$remote_settings"
 
         if [[ "\$local_options" != "\$remote_options" || "\$local_settings" != "\$remote_settings" ]]; then
-          echo "UPLOAD!"
-          #echo "Differences found between local and remote packages. Uploading..."
-          #conan upload --no-overwrite --remote ecdc-conan-release epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}"
+          echo "Differences found between local and remote packages. Uploading..."
+          conan upload --no-overwrite --remote ecdc-conan-release epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}"
         else
           echo "No differences found. Skipping upload."
         fi
 
-        conan upload --no-overwrite --remote ecdc-conan-release epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}"
+        # conan upload --no-overwrite --remote ecdc-conan-release epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}"
 
         # Stage Archive
         echo "Repository: $CI_PROJECT_NAME/$CI_COMMIT_REF_NAME" > BUILD_INFO
