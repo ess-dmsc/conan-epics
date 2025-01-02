@@ -106,7 +106,7 @@ archiving:
         echo "local_options: \$local_options"
 
         # Fetch remote package info
-        conan search epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}" -r=ecdc-conan-extenral --json=remote_info.json || {
+        conan search epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}" -r=ecdc-conan-external --json=remote_info.json || {
           echo "Remote package not found. Uploading..."
           conan upload --no-overwrite --remote ecdc-conan-external epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}" --all
           exit 0
