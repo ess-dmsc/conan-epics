@@ -84,7 +84,7 @@ archiving:
 
         # TODO: Conan upload test
         # Set ${conanUploadFlag}
-        conan upload --no-overwrite --remote ecdc-conan-release epics/7.0.6@"${CONAN_USER}"/test
+        conan upload --no-overwrite --remote ecdc-conan-release epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}"
 
         # Stage Archive
         echo "Repository: $CI_PROJECT_NAME/$CI_COMMIT_REF_NAME" > BUILD_INFO
@@ -97,17 +97,13 @@ archiving:
 
         cd ..
         tar czvf ../epics.tar.gz epics
-        # TODO: Remove debug
-        pwd
-
-        cd ..
-        pwd
       EOF
 
   artifacts:
     paths:
       - epics.tar.gz
-    expire_in: 1 day
+    expire_in: 1 month
+    when: always
 
 # Clean up after the build
 after_script:
