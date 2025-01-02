@@ -76,7 +76,7 @@ archiving:
         set +x conan user --password $ESS_ARTIFACTORY_ECDC_CONAN_TOKEN --remote ecdc-conan-external ecdc > /dev/null
 
         # TODO: ensuring build packages Conan operations
-        conan install .. 
+        conan install .. --build=missing
 
         echo "Archiving..."
 
