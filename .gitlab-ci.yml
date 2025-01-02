@@ -1,6 +1,6 @@
 stages:
-  - checkout
   - build
+  - install
   - archive
 
 variables:
@@ -23,33 +23,12 @@ cache:
   paths:
     - .conan
 
-# macOS Build Stage (if enabled)
-# macos_build:
-#   stage: build
-#   tags:
-#     - dc-zone
-#   image: apple/Xcode:latest
-#   script:
-#     - |
-#       rm -rf $PROJECT_NAME  # Clean up previous clone if any
-#       git clone https://gitlab.esss.lu.se/ecdc/ess-dmsc/conan-epics.git
-#       cd $PROJECT_NAME
-#       git checkout $CI_COMMIT_REF_NAME
 
-#       # macOS: Package
-#       conan create . ${CONAN_USER}/${CONAN_PKG_CHANNEL} --build=outdated
-#   only:
-#     - master
-#   artifacts:
-#     paths:
-#       - build/
-#     expire_in: 1 day
-
-# Archiving Build Node
-archiving:
-  stage: archive
+# Archiving - Install Stage
+installing:
+  stage: install
   tags:
-    - dc-zone 
+    - dc-zone
     - docker
   image: registry.esss.lu.se/ecdc/ess-dmsc/docker-centos7-build-node:12.3.0
   script:
@@ -78,9 +57,54 @@ archiving:
         # TODO: ensuring build packages Conan operations
         conan install .. --build=epics
 
+      EOF
+  artifacts:
+    paths:
+      - archiving/epics/
+    expire_in: 1 day
+
+
+# macOS Build Stage (if enabled)
+# macos_build:
+#   stage: build
+#   tags:
+#     - dc-zone
+#   image: apple/Xcode:latest
+#   script:
+#     - |
+#       rm -rf $PROJECT_NAME  # Clean up previous clone if any
+#       git clone https://gitlab.esss.lu.se/ecdc/ess-dmsc/conan-epics.git
+#       cd $PROJECT_NAME
+#       git checkout $CI_COMMIT_REF_NAME
+
+#       # macOS: Package
+#       conan create . ${CONAN_USER}/${CONAN_PKG_CHANNEL} --build=outdated
+#   only:
+#     - master
+#   artifacts:
+#     paths:
+#       - build/
+#     expire_in: 1 day
+
+
+# Archiving - Archive Stage
+archiving:
+  stage: archive
+  tags:
+    - dc-zone
+    - docker
+  image: registry.esss.lu.se/ecdc/ess-dmsc/docker-centos7-build-node:12.3.0
+  script:
+    - echo "Archiving..."
+    - |
+      scl enable devtoolset-11 rh-python38 -- /bin/bash -e -x <<EOF
+        cd archiving/epics
+
         # TODO: REMOVE: ensuring that package exist
         conan search epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}" -r=ecdc-conan-release --table=table.html
-        conan remote info ecdc-conan-release
+        conan remote list
+        #conan remote update ecdc-conan-release <new-url>
+
 
         # TODO: Conan upload test
         # Set ${conanUploadFlag}
@@ -98,7 +122,6 @@ archiving:
         cd ..
         tar czvf ../epics.tar.gz epics
       EOF
-
   artifacts:
     paths:
       - epics.tar.gz
