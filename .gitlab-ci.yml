@@ -60,6 +60,14 @@ archiving:
         ./generate-conanfile.sh "${CONAN_USER}" "${CONAN_PKG_CHANNEL}" 
 
         # TODO: Remove Debug Conan file 
+          # Print GitLab CI variables for debugging
+        echo "CI_PROJECT_NAME: $CI_PROJECT_NAME"
+        echo "CI_COMMIT_REF_NAME: $CI_COMMIT_REF_NAME"
+        echo "CI_COMMIT_SHA: $CI_COMMIT_SHA"
+        echo "CONAN_USER: $CONAN_USER"
+        echo "CONAN_PKG_CHANNEL: $CONAN_PKG_CHANNEL"
+        echo "ESS_ARTIFACTORY_ECDC_CONAN_TOKEN: $ESS_ARTIFACTORY_ECDC_CONAN_TOKEN"
+                echo "ESS_ARTIFACTORY_ECDC_CONAN_USER: $ESS_ARTIFACTORY_ECDC_CONAN_USER"
         echo "DEBUG conanfile.txt"
         cat conanfile.txt
         echo "END DEBUG conanfile.txt"
