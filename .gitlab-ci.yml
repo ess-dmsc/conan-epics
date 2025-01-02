@@ -68,11 +68,22 @@ archiving:
         mkdir epics
         cd epics
 
+        # TODO: TESTING
+        # Set Conan server
+        set +x conan remote add --insert 0 --force ecdc-conan-external local_conan_server=https://artifactory.esss.lu.se/artifactory/api/conan/ecdc-conan-external
+
+        # Set Conan User 
+        set +x conan user --password $ESS_ARTIFACTORY_ECDC_CONAN_TOKEN --remote ecdc-conan-external ecdc > /dev/null
+
         # TODO: ensuring build packages Conan operations
         conan install .. --build=epics
 
         # TODO: REMOVE: ensuring that package exist
-        # conan search epics/7.0.6@ess-dmsc/stable -r=ecdc-conan-release --table=table.html
+        conan search epics/7.0.6@ess-dmsc/stable -r=ecdc-conan-release --table=table.html
+
+        # TODO: Conan upload test
+        # Set ${conanUploadFlag}
+        conan upload --no-overwrite --remote ecdc-conan-release ${packageNameAndVersion}@${conanUser}/${conanPackageChannel}
 
         # Stage Archive
         echo "Repository: $CI_PROJECT_NAME/$CI_COMMIT_REF_NAME" > BUILD_INFO
