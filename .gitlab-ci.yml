@@ -100,7 +100,7 @@ archiving:
         # Fetch remote package info
         conan search epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}" -r=ecdc-conan-release --json=remote_info.json || {
           echo "Remote package not found. Uploading..."
-          conan upload --no-overwrite --remote ecdc-conan-release epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}"
+          conan upload --no-overwrite --remote ecdc-conan-release epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}" --all
           exit 0
         }
 
@@ -125,7 +125,7 @@ archiving:
 
         if [[ "\$local_options" != "\$remote_options" || "\$local_settings" != "\$remote_settings" ]]; then
           echo "Differences found between local and remote packages. Uploading..."
-          conan upload --no-overwrite --remote ecdc-conan-release epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}"
+          conan upload --no-overwrite --remote ecdc-conan-release epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}" --all
         else
           echo "No differences found. Skipping upload."
         fi
