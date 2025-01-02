@@ -62,8 +62,16 @@ archiving:
         mkdir epics
         cd epics
 
-        # Conan operations
-        conan install ..
+        # TODO: Remove Debug Conan file 
+        echo "DEBUG conanfile.txt"
+        cat conanfile.txt
+        echo "END DEBUG conanfile.txt"
+
+        # TODO: ensuring build packages Conan operations
+        conan install .. --build=epics
+
+        # TODO: REMOVE: ensuring that package exist
+        # conan search epics/7.0.6@ess-dmsc/stable -r=ecdc-conan-release --table=table.html
 
         # Stage Archive
         echo "Repository: $CI_PROJECT_NAME/$CI_COMMIT_REF_NAME" > BUILD_INFO
