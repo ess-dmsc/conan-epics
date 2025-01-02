@@ -78,10 +78,12 @@ archiving:
 
         # TODO: TESTING
         # Set Conan server
-        set +x conan remote add --insert 0 --force ecdc-conan-external local_conan_server=https://artifactory.esss.lu.se/artifactory/api/conan/ecdc-conan-external
+        conan remote add ecdc-conan-external https://artifactory.esss.lu.se/artifactory/api/conan/ecdc-conan-external --force
+        #set +x conan remote add --insert 0 --force ecdc-conan-external local_conan_server=https://artifactory.esss.lu.se/artifactory/api/conan/ecdc-conan-external
 
         # Set Conan User 
-        set +x conan user --password $ESS_ARTIFACTORY_ECDC_CONAN_EXTERNAL_REMOTE_URL --remote ecdc-conan-external $ESS_ARTIFACTORY_ECDC_CONAN_USER
+        #set +x conan user --password $ESS_ARTIFACTORY_ECDC_CONAN_EXTERNAL_REMOTE_URL --remote ecdc-conan-external $ESS_ARTIFACTORY_ECDC_CONAN_USER
+        conan user --password $ESS_ARTIFACTORY_ECDC_CONAN_TOKEN --remote ecdc-conan-external $ESS_ARTIFACTORY_ECDC_CONAN_USER
 
         # TODO: ensuring build packages Conan operations
         conan install .. --build=missing
