@@ -83,7 +83,7 @@ archiving:
 
         # TODO: Conan upload test
         # Set ${conanUploadFlag}
-        conan upload --no-overwrite --remote ecdc-conan-release ${packageNameAndVersion}@${conanUser}/${conanPackageChannel}
+        conan upload --no-overwrite --remote ecdc-conan-release epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}"
 
         # Stage Archive
         echo "Repository: $CI_PROJECT_NAME/$CI_COMMIT_REF_NAME" > BUILD_INFO
