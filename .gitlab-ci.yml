@@ -82,6 +82,7 @@ archiving:
 
         # TODO: REMOVE: ensuring that package exist
         conan search epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}" -r=ecdc-conan-release --table=table.html
+        echo "conan remote list"
         conan remote list
         #conan remote update ecdc-conan-release <new-url>
 
@@ -91,6 +92,10 @@ archiving:
         # Inspect local package
         local_options=\$(conan inspect --raw options epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}")
         local_settings=\$(conan inspect --raw settings epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}")
+
+        # Print values to the screen
+        echo "local_options: \$local_options"
+        echo "local_options: \$local_options"
 
         # Fetch remote package info
         conan search epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}" -r=ecdc-conan-release --json=remote_info.json || {
@@ -102,6 +107,17 @@ archiving:
         # Parse and compare
         remote_options=\$(jq -r '.results[0].options' remote_info.json)
         remote_settings=\$(jq -r '.results[0].settings' remote_info.json)
+        
+        # Check if the results array is empty
+        if [[ \$(jq '.results | length' remote_info.json) -eq 0 ]]; then
+          echo "No packages found for reference 'epics/7.0.6@${CONAN_USER}/${CONAN_PKG_CHANNEL}' in remote 'ecdc-conan-release'."
+          remote_options="null"
+          remote_settings="null"
+        else
+          # Parse and compare
+          remote_options=\$(jq -r '.results[0].options' remote_info.json)
+          remote_settings=\$(jq -r '.results[0].settings' remote_info.json)
+        fi
 
         # Print values to the screen
         echo "Remote options: \$remote_options"
