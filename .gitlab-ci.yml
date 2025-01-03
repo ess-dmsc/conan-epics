@@ -1,6 +1,5 @@
 stages:
-  - build
-  - install
+  - container_build_node
   - archive
 
 variables:
@@ -9,6 +8,7 @@ variables:
   PROJECT_NAME: "conan-epics"
   NUM_ARTIFACTS_TO_KEEP: 1
 
+# Calculate number of artifacts to keep
 before_script:
   - echo "Setting up environment..."
   - |
@@ -18,150 +18,73 @@ before_script:
       export NUM_ARTIFACTS_TO_KEEP=1
     fi
 
-# Cache Conan dependencies
-cache:
-  paths:
-    - .conan
-    
-# macOS Build Stage (if enabled)
-# macos_build:
-#   stage: build
-#   tags:
-#     - dc-zone
-#   image: apple/Xcode:latest
-#   script:
-#     - |
-#       rm -rf $PROJECT_NAME  # Clean up previous clone if any
-#       git clone https://gitlab.esss.lu.se/ecdc/ess-dmsc/conan-epics.git
-#       cd $PROJECT_NAME
-#       git checkout $CI_COMMIT_REF_NAME
+# Setup Conan
+default:
+  before_script:
+    - mkdir epics
+    - cd epics
+    - conan remote add ecdc-conan-external https://artifactory.esss.lu.se/artifactory/api/conan/ecdc-conan-external --force
+    - conan user --password $ESS_ARTIFACTORY_ECDC_CONAN_TOKEN --remote ecdc-conan-external $ESS_ARTIFACTORY_ECDC_CONAN_USER
 
-#       # macOS: Package
-#       conan create . ${CONAN_USER}/${CONAN_PKG_CHANNEL} --build=outdated
-#   only:
-#     - master
-#   artifacts:
-#     paths:
-#       - build/
-#     expire_in: 1 day
+# Container Build Node Stage so the Conan package can be built for all platforms
+container_build_node:
+  stage: container_build_node
+  parallel:
+    matrix:
+      - CONTAINER: "centos7-gcc11"
+        IMAGE: "registry.esss.lu.se/ecdc/ess-dmsc/docker-centos7-build-node:12.3.0"
+        SHELL: "/usr/bin/scl enable devtoolset-11 rh-python38 -- /bin/bash -e -x"
+      - CONTAINER: "almalinux8-gcc12"
+        IMAGE: "registry.esss.lu.se/ecdc/ess-dmsc/docker-almalinux8-build-node:1.1.0"
+        SHELL: "/usr/bin/scl enable gcc-toolset-12 -- /bin/bash -e -x"
+      - CONTAINER: "debian11"
+        IMAGE: "registry.esss.lu.se/ecdc/ess-dmsc/docker-debian11-build-node:5.2.0"
+        SHELL: "bash -e -x"
+      - CONTAINER: "ubuntu2204"
+        IMAGE: "registry.esss.lu.se/ecdc/ess-dmsc/docker-ubuntu2204-build-node:5.0.0"
+        SHELL: "bash -e -x"
 
-# Archiving Build Node
-archiving:
-  stage: archive
-  tags:
-    - dc-zone 
-    - docker
-  image: registry.esss.lu.se/ecdc/ess-dmsc/docker-centos7-build-node:12.3.0
   script:
-    - echo "Installing dependencies..."
-    - |
-      scl enable devtoolset-11 rh-python38 -- /bin/bash -e -x <<EOF
-        cd archiving
-        ./generate-conanfile.sh "${CONAN_USER}" "${CONAN_PKG_CHANNEL}" 
-
-        # TODO: Remove Debug Conan file 
-          # Print GitLab CI variables for debugging
-        echo "CI_PROJECT_NAME: $CI_PROJECT_NAME"
-        echo "CI_COMMIT_REF_NAME: $CI_COMMIT_REF_NAME"
-        echo "CI_COMMIT_SHA: $CI_COMMIT_SHA"
-        echo "CONAN_USER: $CONAN_USER"
-        echo "CONAN_PKG_CHANNEL: $CONAN_PKG_CHANNEL"
-        echo "ESS_ARTIFACTORY_ECDC_CONAN_TOKEN: $ESS_ARTIFACTORY_ECDC_CONAN_TOKEN"
-                echo "ESS_ARTIFACTORY_ECDC_CONAN_USER: $ESS_ARTIFACTORY_ECDC_CONAN_USER"
-        echo "DEBUG conanfile.txt"
-        cat conanfile.txt
-        echo "END DEBUG conanfile.txt"
-
-        # Stage Install
-        mkdir epics
-        cd epics
-
-        # TODO: TESTING
-        # Set Conan server
-        conan remote add ecdc-conan-external https://artifactory.esss.lu.se/artifactory/api/conan/ecdc-conan-external --force
-        #set +x conan remote add --insert 0 --force ecdc-conan-external local_conan_server=https://artifactory.esss.lu.se/artifactory/api/conan/ecdc-conan-external
-
-        # Set Conan User 
-        #set +x conan user --password $ESS_ARTIFACTORY_ECDC_CONAN_EXTERNAL_REMOTE_URL --remote ecdc-conan-external $ESS_ARTIFACTORY_ECDC_CONAN_USER
-        conan user --password $ESS_ARTIFACTORY_ECDC_CONAN_TOKEN --remote ecdc-conan-external $ESS_ARTIFACTORY_ECDC_CONAN_USER
-
-        # TODO: ensuring build packages Conan operations
+    - echo "Running on $CONTAINER"
+    - $SHELL -c "
         conan install .. --build=missing
-
-        echo "Archiving..."
-
-        # TODO: REMOVE: ensuring that package exist
-        #conan search epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}" -r=ecdc-conan-external --table=table.html
-        echo "conan remote list"
+        echo 'Archiving...'
+        echo 'conan remote list'
         conan remote list
-        #conan remote update ecdc-conan-external <new-url>
-
-        # TODO: Conan upload test
-        # Set ${conanUploadFlag}
-
-        # Inspect local package
-        local_options=\$(conan inspect --raw options epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}")
-        local_settings=\$(conan inspect --raw settings epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}")
-
-        # Print values to the screen
-        echo "local_options: \$local_options"
-        echo "local_options: \$local_options"
-
-        # Fetch remote package info
-        conan search epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}" -r=ecdc-conan-external --json=remote_info.json || {
-          echo "Remote package not found. Uploading..."
-          conan upload --no-overwrite --remote ecdc-conan-external epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}" --all
+        local_options=\$(conan inspect --raw options epics/7.0.6@${CONAN_USER}/${CONAN_PKG_CHANNEL})
+        local_settings=\$(conan inspect --raw settings epics/7.0.6@${CONAN_USER}/${CONAN_PKG_CHANNEL})
+        echo 'local_options: \$local_options'
+        echo 'local_settings: \$local_settings'
+        conan search epics/7.0.6@${CONAN_USER}/${CONAN_PKG_CHANNEL} -r=ecdc-conan-external --json=remote_info.json || {
+          echo 'Remote package not found. Uploading...'
+          conan upload --no-overwrite --remote ecdc-conan-external epics/7.0.6@${CONAN_USER}/${CONAN_PKG_CHANNEL} --all
           exit 0
         }
-
-        # Parse and compare
         remote_options=\$(jq -r '.results[0].options' remote_info.json)
         remote_settings=\$(jq -r '.results[0].settings' remote_info.json)
-        
-        # Check if the results array is empty
         if [[ \$(jq '.results | length' remote_info.json) -eq 0 ]]; then
-          echo "No packages found for reference 'epics/7.0.6@${CONAN_USER}/${CONAN_PKG_CHANNEL}' in remote 'ecdc-conan-external'."
-          remote_options="null"
-          remote_settings="null"
+          echo 'No packages found for reference epics/7.0.6@${CONAN_USER}/${CONAN_PKG_CHANNEL} in remote ecdc-conan-external.'
+          remote_options='null'
+          remote_settings='null'
         else
-          # Parse and compare
           remote_options=\$(jq -r '.results[0].options' remote_info.json)
           remote_settings=\$(jq -r '.results[0].settings' remote_info.json)
         fi
+        echo 'Remote options: \$remote_options'
+        echo 'Remote settings: \$remote_settings'
+      "
 
-        # Print values to the screen
-        echo "Remote options: \$remote_options"
-        echo "Remote settings: \$remote_settings"
-
-        if [[ "\$local_options" != "\$remote_options" || "\$local_settings" != "\$remote_settings" ]]; then
-          echo "Differences found between local and remote packages. Uploading..."
-          conan upload --no-overwrite --remote ecdc-conan-external epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}" --all
-        else
-          echo "No differences found. Skipping upload."
-        fi
-
-        # conan upload --no-overwrite --remote ecdc-conan-external epics/7.0.6@"${CONAN_USER}"/"${CONAN_PKG_CHANNEL}"
-
-        # Stage Archive
-        echo "Repository: $CI_PROJECT_NAME/$CI_COMMIT_REF_NAME" > BUILD_INFO
-        echo "Commit: $CI_COMMIT_SHA" >> BUILD_INFO
-        echo "GitLab build: $CI_JOB_ID" >> BUILD_INFO
-
-        # Remove additional files generated by Conan
-        rm conan*
-        rm graph_info.json
-
-        cd ..
-        tar czvf ../epics.tar.gz epics
-      EOF
-
+archiving:
+  stage: archive
+  script:
+    - echo "Archiving build artifacts..."
+    - tar czvf epics.tar.gz epics
   artifacts:
     paths:
       - epics.tar.gz
     expire_in: 1 month
-    when: always
 
 # Clean up after the build
 after_script:
   - echo "Cleaning workspace"
-# - rm -rf $CI_PROJECT_DIR
+  - rm -rf epics
