@@ -30,7 +30,6 @@ container_build_node:
   script:
     - echo "Running on $CONTAINER"
     - |
-      $SHELL -c "
       mkdir epics &&
       cd epics &&
       conan remote add ecdc-conan-external https://artifactory.esss.lu.se/artifactory/api/conan/ecdc-conan-external --force &&
@@ -60,7 +59,6 @@ container_build_node:
       fi &&
       echo 'Remote options: \$remote_options' &&
       echo 'Remote settings: \$remote_settings'
-      "
     - echo "Archiving build artifacts..."
     - tar czvf epics.tar.gz epics
 
