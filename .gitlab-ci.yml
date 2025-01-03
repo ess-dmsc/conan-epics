@@ -26,12 +26,12 @@ container_build_node:
       - CONTAINER: "ubuntu2204"
         IMAGE: "registry.esss.lu.se/ecdc/ess-dmsc/docker-ubuntu2204-build-node:5.0.0"
         SHELL: "bash -e -x"
-  
+  image: $IMAGE
   script:
     - echo "Running on $CONTAINER"
     - echo "Shell on $SHELL"
     - |
-      scl enable devtoolset-11 rh-python38 -- /bin/bash -e -x <<EOF
+      $SHELL <<EOF
         mkdir epics
         cd epics
         conan remote add ecdc-conan-external https://artifactory.esss.lu.se/artifactory/api/conan/ecdc-conan-external --force
