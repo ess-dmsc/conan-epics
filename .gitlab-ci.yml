@@ -16,7 +16,7 @@ container_build_node:
     matrix:
       - CONTAINER: "centos7-gcc11"
         IMAGE: "registry.esss.lu.se/ecdc/ess-dmsc/docker-centos7-build-node:12.3.0"
-        SHELL: "scl enable devtoolset-11 rh-python38 -- /bin/bash -e -x"
+        SHELL: "/usr/bin/scl enable devtoolset-11 rh-python38 -- /bin/bash -e -x"
       - CONTAINER: "almalinux8-gcc12"
         IMAGE: "registry.esss.lu.se/ecdc/ess-dmsc/docker-almalinux8-build-node:1.1.0"
         SHELL: "/usr/bin/scl enable gcc-toolset-12 -- /bin/bash -e -x"
@@ -31,7 +31,7 @@ container_build_node:
     - echo "Running on $CONTAINER"
     - echo "Shell on $SHELL"
     - |
-      $SHELL <<EOF
+      scl enable devtoolset-11 rh-python38 -- /bin/bash -e -x <<EOF
         mkdir epics
         cd epics
         conan remote add ecdc-conan-external https://artifactory.esss.lu.se/artifactory/api/conan/ecdc-conan-external --force
