@@ -28,22 +28,17 @@ container_build_node:
         SHELL: "bash -e -x"
   image: $IMAGE
   script:
-    - echo "Running on $CONTAINER"
-    - echo "Shell on $SHELL"
+    - echo "Starting build job for $PROJECT_NAME on $CONTAINER"
     - |
       $SHELL <<EOF
         mkdir epics
         cd epics
+        echo 'Setting up Conan...'
+        # TODO: we want to choose to upload centos7-gcc11 only
+        # TODO: STABLE IS LIKE THIS -> '--no-overwrite' 
         conan remote add ecdc-conan-external https://artifactory.esss.lu.se/artifactory/api/conan/ecdc-conan-external --force
         conan user --password $ESS_ARTIFACTORY_ECDC_CONAN_TOKEN --remote ecdc-conan-external $ESS_ARTIFACTORY_ECDC_CONAN_USER
         conan install .. --build=missing
-        echo 'Archiving...'
-        echo 'conan remote list'
-        conan remote list
-        local_options="$(conan inspect --raw options epics/7.0.6@${CONAN_USER}/${CONAN_PKG_CHANNEL})"
-        local_settings="$(conan inspect --raw settings epics/7.0.6@${CONAN_USER}/${CONAN_PKG_CHANNEL})"
-        echo "local_options: $local_options"
-        echo "local_settings: $local_settings"
         conan search epics/7.0.6@${CONAN_USER}/${CONAN_PKG_CHANNEL} -r=ecdc-conan-external --json=remote_info.json || {
           echo 'Remote package not found. Uploading...'
           conan upload --no-overwrite --remote ecdc-conan-external epics/7.0.6@${CONAN_USER}/${CONAN_PKG_CHANNEL} --all
@@ -63,6 +58,12 @@ container_build_node:
         echo "Remote settings: $remote_settings"
       EOF
     - echo "Archiving build artifacts..."
+    - pwd
+    # Create file with build information
+    - touch BUILD_INFO
+    - echo "Repository: ${CI_PROJECT_PATH}/${CI_COMMIT_REF_NAME}" >> BUILD_INFO
+    - echo "Commit: ${CI_COMMIT_SHA}" >> BUILD_INFO
+    - echo "GitLab build: ${CI_PIPELINE_ID}" >> BUILD_INFO
     - tar czvf epics.tar.gz epics
 
   artifacts:
