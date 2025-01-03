@@ -39,7 +39,7 @@ container_build_node:
         #conan install .. --build=missing
         # mkdir epics
         # cd epics
-        conan create . {CONAN_USER}/${CONAN_PKG_CHANNEL} --build=outdated
+        conan create . ${CONAN_USER}/${CONAN_PKG_CHANNEL} --build=outdated
         conan search epics/7.0.6@${CONAN_USER}/${CONAN_PKG_CHANNEL} -r=ecdc-conan-external --json=remote_info.json || {
           echo 'Remote package not found. Uploading...'
           conan upload --no-overwrite --remote ecdc-conan-external epics/7.0.6@${CONAN_USER}/${CONAN_PKG_CHANNEL} --all
