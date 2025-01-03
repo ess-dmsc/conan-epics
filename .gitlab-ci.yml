@@ -46,7 +46,7 @@ container_build_node:
 
   script:
     - echo "Running on $CONTAINER"
-    - $SHELL -c "
+    - $SHELL -c |
         conan install .. --build=missing
         echo 'Archiving...'
         echo 'conan remote list'
@@ -72,7 +72,6 @@ container_build_node:
         fi
         echo 'Remote options: \$remote_options'
         echo 'Remote settings: \$remote_settings'
-      "
 
 archiving:
   stage: archive
