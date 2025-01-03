@@ -49,7 +49,7 @@ container_build_node:
       } &&
       remote_options="$(jq -r '.results[0].options' remote_info.json)" &&
       remote_settings="$(jq -r '.results[0].settings' remote_info.json)" &&
-      if [[ \$(jq '.results | length' remote_info.json) -eq 0 ]]; then
+      if [ "$(jq '.results | length' remote_info.json)" -eq 0 ]; then
         echo 'No packages found for reference epics/7.0.6@${CONAN_USER}/${CONAN_PKG_CHANNEL} in remote ecdc-conan-external.' &&
         remote_options='null' &&
         remote_settings='null'
