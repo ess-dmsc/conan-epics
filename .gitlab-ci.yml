@@ -76,6 +76,7 @@ container_build_node:
         pwd
         ls
       EOF
+    - cd archiving
     - tar czvf ../epics.tar.gz epics
 
   artifacts:
