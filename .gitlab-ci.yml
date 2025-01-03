@@ -74,6 +74,7 @@ container_build_node:
         cd ..
         echo "pwd3"
         pwd
+        ls
       EOF
     - tar czvf ../epics.tar.gz epics
 
