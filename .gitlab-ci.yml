@@ -72,6 +72,8 @@ container_build_node:
         echo "Commit: ${CI_COMMIT_SHA}" >> BUILD_INFO
         echo "GitLab build: ${CI_PIPELINE_ID}" >> BUILD_INFO
         cd ..
+        echo "pwd3"
+        pwd
       EOF
     - tar czvf ../epics.tar.gz epics
 
