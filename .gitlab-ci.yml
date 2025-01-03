@@ -9,7 +9,7 @@ variables:
 # Functions
 .setup_conan: &setup_conan
   - echo 'Setting up Conan...'
-  - conan remote add ecdc-conan-external https://artifactory.esss.lu.se/artifactory/api/conan/ecdc-conan-external --force
+  - conan remote add $conan_remote_name $conan_remote_url --force
   - conan user --password $ESS_ARTIFACTORY_ECDC_CONAN_TOKEN --remote ecdc-conan-external $ESS_ARTIFACTORY_ECDC_CONAN_USER
 
 .create_build_info: &create_build_info
@@ -63,6 +63,9 @@ container_build_node:
       EOF
     - cd archiving
     - tar czvf ../epics.tar.gz epics
+  variables:
+    conan_remote_name: "ecdc-conan-external"
+    conan_remote_url: "https://artifactory.esss.lu.se/artifactory/api/conan/ecdc-conan-external"
 
   artifacts:
     paths:
