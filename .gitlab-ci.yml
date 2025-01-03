@@ -56,7 +56,7 @@ container_build_node:
         # rm conan*
         # rm graph_info.json
 
-        cd ..
+        
         echo "pwd2"
         pwd
         echo "ls2"
@@ -67,7 +67,7 @@ container_build_node:
         echo "Commit: ${CI_COMMIT_SHA}" >> BUILD_INFO
         echo "GitLab build: ${CI_PIPELINE_ID}" >> BUILD_INFO
       EOF
-    - tar czvf epics.tar.gz .
+    - tar czvf epics.tar.gz epics
 
   artifacts:
     paths:
