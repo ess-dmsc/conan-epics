@@ -1,23 +1,17 @@
 stages:
   - container_build_node
-  - archive
 
 variables:
   CONAN_USER: "ess-dmsc"
   CONAN_PKG_CHANNEL: "stable"
   PROJECT_NAME: "conan-epics"
 
-# Setup Conan
-default:
-  before_script:
-    - mkdir epics
-    - cd epics
-    - conan remote add ecdc-conan-external https://artifactory.esss.lu.se/artifactory/api/conan/ecdc-conan-external --force
-    - conan user --password $ESS_ARTIFACTORY_ECDC_CONAN_TOKEN --remote ecdc-conan-external $ESS_ARTIFACTORY_ECDC_CONAN_USER
-
 # Container Build Node Stage so the Conan package can be built for all platforms
 container_build_node:
   stage: container_build_node
+  tags:
+    - dc-zone 
+    - docker
   parallel:
     matrix:
       - CONTAINER: "centos7-gcc11"
@@ -33,6 +27,12 @@ container_build_node:
         IMAGE: "registry.esss.lu.se/ecdc/ess-dmsc/docker-ubuntu2204-build-node:5.0.0"
         SHELL: "bash -e -x"
   
+  before_script:
+    - mkdir epics
+    - cd epics
+    - conan remote add ecdc-conan-external https://artifactory.esss.lu.se/artifactory/api/conan/ecdc-conan-external --force
+    - conan user --password $ESS_ARTIFACTORY_ECDC_CONAN_TOKEN --remote ecdc-conan-external $ESS_ARTIFACTORY_ECDC_CONAN_USER
+
   script:
     - echo "Running on $CONTAINER"
     - |
@@ -63,12 +63,9 @@ container_build_node:
       echo 'Remote options: \$remote_options' &&
       echo 'Remote settings: \$remote_settings'
       "
-
-archiving:
-  stage: archive
-  script:
     - echo "Archiving build artifacts..."
     - tar czvf epics.tar.gz epics
+
   artifacts:
     paths:
       - epics.tar.gz
