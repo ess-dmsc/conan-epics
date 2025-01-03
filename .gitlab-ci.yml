@@ -6,6 +6,18 @@ variables:
   CONAN_PKG_CHANNEL: "stable"
   PROJECT_NAME: "conan-epics"
 
+# Functions
+.setup_conan: &setup_conan
+  - echo 'Setting up Conan...'
+  - conan remote add ecdc-conan-external https://artifactory.esss.lu.se/artifactory/api/conan/ecdc-conan-external --force
+  - conan user --password $ESS_ARTIFACTORY_ECDC_CONAN_TOKEN --remote ecdc-conan-external $ESS_ARTIFACTORY_ECDC_CONAN_USER
+
+.create_build_info: &create_build_info
+  - touch BUILD_INFO
+  - echo "Repository: ${CI_PROJECT_PATH}/${CI_COMMIT_REF_NAME}" >> BUILD_INFO
+  - echo "Commit: ${CI_COMMIT_SHA}" >> BUILD_INFO
+  - echo "GitLab build: ${CI_PIPELINE_ID}" >> BUILD_INFO
+
 # Container Build Node Stage so the Conan package can be built for all platforms
 container_build_node:
   stage: container_build_node
@@ -31,10 +43,7 @@ container_build_node:
     - echo "Starting build job for $PROJECT_NAME on $CONTAINER"
     - |
       $SHELL <<EOF
-        echo 'Setting up Conan...'
-        conan remote add ecdc-conan-external https://artifactory.esss.lu.se/artifactory/api/conan/ecdc-conan-external --force
-        conan user --password $ESS_ARTIFACTORY_ECDC_CONAN_TOKEN --remote ecdc-conan-external $ESS_ARTIFACTORY_ECDC_CONAN_USER
-
+        *setup_conan
         cd archiving
         ./generate-conanfile.sh "${CONAN_USER}" "${CONAN_PKG_CHANNEL}" 
 
@@ -49,11 +58,7 @@ container_build_node:
         rm conan*
         rm graph_info.json
 
-        # Create file with build information
-        touch BUILD_INFO
-        echo "Repository: ${CI_PROJECT_PATH}/${CI_COMMIT_REF_NAME}" >> BUILD_INFO
-        echo "Commit: ${CI_COMMIT_SHA}" >> BUILD_INFO
-        echo "GitLab build: ${CI_PIPELINE_ID}" >> BUILD_INFO
+        *create_build_info
 
       EOF
     - cd archiving
