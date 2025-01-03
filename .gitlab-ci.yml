@@ -31,14 +31,14 @@ container_build_node:
     - echo "Starting build job for $PROJECT_NAME on $CONTAINER"
     - |
       $SHELL <<EOF
-        mkdir epics
-        cd epics
         echo 'Setting up Conan...'
         # TODO: we want to choose to upload centos7-gcc11 only
         # TODO: STABLE IS LIKE THIS -> '--no-overwrite' 
         conan remote add ecdc-conan-external https://artifactory.esss.lu.se/artifactory/api/conan/ecdc-conan-external --force
         conan user --password $ESS_ARTIFACTORY_ECDC_CONAN_TOKEN --remote ecdc-conan-external $ESS_ARTIFACTORY_ECDC_CONAN_USER
         #conan install .. --build=missing
+        # mkdir epics
+        # cd epics
         conan create . {CONAN_USER}/${CONAN_PKG_CHANNEL} --build=outdated
         conan search epics/7.0.6@${CONAN_USER}/${CONAN_PKG_CHANNEL} -r=ecdc-conan-external --json=remote_info.json || {
           echo 'Remote package not found. Uploading...'
