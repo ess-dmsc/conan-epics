@@ -56,14 +56,15 @@ container_build_node:
         fi
         echo "Remote options: $remote_options"
         echo "Remote settings: $remote_settings"
-      EOF
-    - echo "Archiving build artifacts..."
-    - pwd
-    # Create file with build information
-    - touch BUILD_INFO
-    - echo "Repository: ${CI_PROJECT_PATH}/${CI_COMMIT_REF_NAME}" >> BUILD_INFO
-    - echo "Commit: ${CI_COMMIT_SHA}" >> BUILD_INFO
-    - echo "GitLab build: ${CI_PIPELINE_ID}" >> BUILD_INFO
+      
+        echo "Archiving build artifacts..."
+        pwd
+        # Create file with build information
+        touch BUILD_INFO
+        echo "Repository: ${CI_PROJECT_PATH}/${CI_COMMIT_REF_NAME}" >> BUILD_INFO
+        echo "Commit: ${CI_COMMIT_SHA}" >> BUILD_INFO
+        echo "GitLab build: ${CI_PIPELINE_ID}" >> BUILD_INFO
+        EOF
     - tar czvf epics.tar.gz epics
 
   artifacts:
