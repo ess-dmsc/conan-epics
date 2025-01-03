@@ -43,7 +43,7 @@ container_build_node:
     - echo "Starting build job for $PROJECT_NAME on $CONTAINER"
     - |
       $SHELL <<EOF
-        *setup_conan
+        $(echo "${{setup_conan[*]}}")
         cd archiving
         ./generate-conanfile.sh "${CONAN_USER}" "${CONAN_PKG_CHANNEL}" 
 
@@ -58,7 +58,7 @@ container_build_node:
         rm conan*
         rm graph_info.json
 
-        *create_build_info
+        $(echo "${{create_build_info[*]}}")
 
       EOF
     - cd archiving
