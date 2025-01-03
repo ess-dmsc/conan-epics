@@ -29,6 +29,7 @@ container_build_node:
   
   script:
     - echo "Running on $CONTAINER"
+    - echo "Shell on $SHELL"
     - |
       $SHELL <<EOF
         mkdir epics
