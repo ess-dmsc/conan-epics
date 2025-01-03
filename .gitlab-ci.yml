@@ -10,7 +10,7 @@ variables:
 container_build_node:
   stage: container_build_node
   tags:
-    - dc-zone 
+    - dc-zone
     - docker
   parallel:
     matrix:
@@ -26,42 +26,38 @@ container_build_node:
       - CONTAINER: "ubuntu2204"
         IMAGE: "registry.esss.lu.se/ecdc/ess-dmsc/docker-ubuntu2204-build-node:5.0.0"
         SHELL: "bash -e -x"
-  
+
   script:
-    - echo "Running on $CONTAINER"
     - echo "Current shell: $SHELL"
+    - echo "Running on $CONTAINER"
+    - mkdir epics
+    - cd epics
+    - conan remote add ecdc-conan-external https://artifactory.esss.lu.se/artifactory/api/conan/ecdc-conan-external --force
+    - conan user --password $ESS_ARTIFACTORY_ECDC_CONAN_TOKEN --remote ecdc-conan-external $ESS_ARTIFACTORY_ECDC_CONAN_USER
+    - conan install .. --build=missing
+    - echo 'Archiving...'
+    - conan remote list
     - |
-      eval "$SHELL <<EOF"
-      mkdir epics &&
-      cd epics &&
-      conan remote add ecdc-conan-external https://artifactory.esss.lu.se/artifactory/api/conan/ecdc-conan-external --force &&
-      conan user --password $ESS_ARTIFACTORY_ECDC_CONAN_TOKEN --remote ecdc-conan-external $ESS_ARTIFACTORY_ECDC_CONAN_USER &&
-      conan install .. --build=missing &&
-      echo 'Archiving...' &&
-      echo 'conan remote list' &&
-      conan remote list &&
-      local_options="$(conan inspect --raw options epics/7.0.6@${CONAN_USER}/${CONAN_PKG_CHANNEL})" &&
-      local_settings="$(conan inspect --raw settings epics/7.0.6@${CONAN_USER}/${CONAN_PKG_CHANNEL})" &&
-      echo 'local_options: $local_options' &&
-      echo 'local_settings: $local_settings' &&
+      local_options="$(conan inspect --raw options epics/7.0.6@${CONAN_USER}/${CONAN_PKG_CHANNEL})"
+      local_settings="$(conan inspect --raw settings epics/7.0.6@${CONAN_USER}/${CONAN_PKG_CHANNEL})"
+      echo "local_options: $local_options"
+      echo "local_settings: $local_settings"
+    - |
       conan search epics/7.0.6@${CONAN_USER}/${CONAN_PKG_CHANNEL} -r=ecdc-conan-external --json=remote_info.json || {
-        echo 'Remote package not found. Uploading...' &&
-        conan upload --no-overwrite --remote ecdc-conan-external epics/7.0.6@${CONAN_USER}/${CONAN_PKG_CHANNEL} --all &&
+        echo 'Remote package not found. Uploading...'
+        conan upload --no-overwrite --remote ecdc-conan-external epics/7.0.6@${CONAN_USER}/${CONAN_PKG_CHANNEL} --all
         exit 0
-      } &&
-      remote_options="$(jq -r '.results[0].options' remote_info.json)" &&
-      remote_settings="$(jq -r '.results[0].settings' remote_info.json)" &&
+      }
+    - |
+      remote_options="$(jq -r '.results[0].options' remote_info.json)"
+      remote_settings="$(jq -r '.results[0].settings' remote_info.json)"
       if [ "$(jq '.results | length' remote_info.json)" -eq 0 ]; then
-        echo 'No packages found for reference epics/7.0.6@${CONAN_USER}/${CONAN_PKG_CHANNEL} in remote ecdc-conan-external.' &&
-        remote_options='null' &&
+        echo 'No packages found for reference epics/7.0.6@${CONAN_USER}/${CONAN_PKG_CHANNEL} in remote ecdc-conan-external.'
+        remote_options='null'
         remote_settings='null'
-      else
-        remote_options="$(jq -r '.results[0].options' remote_info.json)" &&
-        remote_settings="$(jq -r '.results[0].settings' remote_info.json)" 
-      fi &&
-      echo 'Remote options: $remote_options' &&
-      echo 'Remote settings: $remote_settings'
-      EOF
+      fi
+      echo "Remote options: $remote_options"
+      echo "Remote settings: $remote_settings"
     - echo "Archiving build artifacts..."
     - tar czvf epics.tar.gz epics
 
@@ -70,7 +66,6 @@ container_build_node:
       - epics.tar.gz
     expire_in: 1 month
 
-# Clean up after the build
 after_script:
   - echo "Cleaning workspace"
   - rm -rf epics
