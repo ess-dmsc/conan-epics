@@ -6,17 +6,6 @@ variables:
   CONAN_USER: "ess-dmsc"
   CONAN_PKG_CHANNEL: "stable"
   PROJECT_NAME: "conan-epics"
-  NUM_ARTIFACTS_TO_KEEP: 1
-
-# Calculate number of artifacts to keep
-before_script:
-  - echo "Setting up environment..."
-  - |
-    if [[ "$CI_COMMIT_REF_NAME" == "master" ]]; then
-      export NUM_ARTIFACTS_TO_KEEP=3
-    else
-      export NUM_ARTIFACTS_TO_KEEP=1
-    fi
 
 # Setup Conan
 default:
