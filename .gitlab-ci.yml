@@ -1,5 +1,6 @@
 stages:
   - container_build_node
+  - tag_artifacts
 
 variables:
   CONAN_USER: "ess-dmsc"
