@@ -5,6 +5,20 @@ setup_conan() {
     conan user --password "$ESS_ARTIFACTORY_ECDC_CONAN_TOKEN" --remote ecdc-conan-external "$ESS_ARTIFACTORY_ECDC_CONAN_USER"
 }
 
+upload_package_if_target_container() {
+  local current_container=$1
+  local target_container=$2
+  local conan_user=$3
+  local conan_pkg_channel=$4
+
+  if [[ "$current_container" == "$target_container" ]]; then
+    packageNameAndVersion=$(conan inspect --attribute name --attribute version .. | awk -F': ' '{print $2}' | paste -sd'/')
+    echo $packageNameAndVersion
+    echo ${packageNameAndVersion}@${conan_user}/${conan_pkg_channel}
+    #conan upload --all --no-overwrite --remote ecdc-conan-external ${packageNameAndVersion}@${conan_user}/${conan_pkg_channel}
+  fi
+}
+
 create_build_info() {
     echo 'Creating build info...'
     touch BUILD_INFO
