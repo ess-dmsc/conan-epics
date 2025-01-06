@@ -27,12 +27,12 @@ container_build_node:
         IMAGE: "registry.esss.lu.se/ecdc/ess-dmsc/docker-ubuntu2204-build-node:5.0.0"
         SHELL: "bash -e -x"
   image: $IMAGE
-  before_script:
-    - source .ci_functions.sh
   script:
     - echo "Starting build job for $PROJECT_NAME on $CONTAINER"
     - |
       $SHELL <<EOF
+        pwd
+        source .ci_functions.sh
         setup_conan
         cd archiving
         ./generate-conanfile.sh "${CONAN_USER}" "${CONAN_PKG_CHANNEL}" 
