@@ -13,9 +13,7 @@ upload_package_if_target_container() {
 
   if [[ "$current_container" == "$target_container" ]]; then
     packageNameAndVersion=$(conan inspect --attribute name --attribute version ../../ | awk -F': ' '{print $2}' | paste -sd'/')
-    echo $packageNameAndVersion
-    echo ${packageNameAndVersion}@${conan_user}/${conan_pkg_channel}
-    #conan upload --all --no-overwrite --remote ecdc-conan-external ${packageNameAndVersion}@${conan_user}/${conan_pkg_channel}
+    conan upload --all --no-overwrite --remote ecdc-conan-external ${packageNameAndVersion}@${conan_user}/${conan_pkg_channel}
   fi
 }
 
