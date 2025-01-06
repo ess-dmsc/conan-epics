@@ -1,6 +1,5 @@
 stages:
   - container_build_node
-  - tag_artifacts
 
 variables:
   CONAN_USER: "ess-dmsc"
@@ -64,26 +63,6 @@ container_build_node:
     paths:
       - epics.tar.gz
     expire_in: 1 month
-
-# Create a Git Tag for the Build
-tag_artifacts:
-  stage: tag_artifacts
-  tags:
-  - dc-zone
-  - docker
-  script:
-    - echo "Creating Git tag for the build..."
-    - |
-      if [ -z "$CI_COMMIT_TAG" ]; then
-        TAG="build-${CI_COMMIT_REF_NAME}-$(date +%Y%m%d%H%M%S)"
-        git tag -a "$TAG" -m "Build tag for pipeline $CI_PIPELINE_ID"
-        git push origin "$TAG"
-        echo "Git tag $TAG created and pushed."
-      else
-        echo "Pipeline triggered by tag $CI_COMMIT_TAG. Skipping tagging."
-      fi
-  rules:
-    - if: $CI_COMMIT_TAG == null  # Only run if this is not triggered by an existing tag
 
 # Clean up after the build
 after_script:
