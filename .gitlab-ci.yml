@@ -68,6 +68,9 @@ container_build_node:
 # Create a Git Tag for the Build
 tag_artifacts:
   stage: tag_artifacts
+  tags:
+  - dc-zone
+  - docker
   script:
     - echo "Creating Git tag for the build..."
     - |
