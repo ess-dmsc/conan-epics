@@ -7,22 +7,29 @@ variables:
   PROJECT_NAME: "conan-epics"
 
 # Functions
-.setup_conan: &setup_conan
-  - echo 'Setting up Conan...'
-  - conan remote add $conan_remote_name $conan_remote_url --force
-  - conan user --password $ESS_ARTIFACTORY_ECDC_CONAN_TOKEN --remote ecdc-conan-external $ESS_ARTIFACTORY_ECDC_CONAN_USER
+.fn_init: &fn_init |
+  export CI_APPLICATION_REPOSITORY=$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG
+  export CI_APPLICATION_TAG=$CI_COMMIT_SHA
 
-.create_build_info: &create_build_info
-  - touch BUILD_INFO
-  - echo "Repository: ${CI_PROJECT_PATH}/${CI_COMMIT_REF_NAME}" >> BUILD_INFO
-  - echo "Commit: ${CI_COMMIT_SHA}" >> BUILD_INFO
-  - echo "GitLab build: ${CI_PIPELINE_ID}" >> BUILD_INFO
+  function setup_conan() {
+    echo 'Setting up Conan...'
+    conan remote add "$conan_remote_name" "$conan_remote_url" --force
+    conan user --password "$ESS_ARTIFACTORY_ECDC_CONAN_TOKEN" --remote ecdc-conan-external "$ESS_ARTIFACTORY_ECDC_CONAN_USER"
+  }
+
+  function create_build_info() {
+    echo 'Creating build info...'
+    touch BUILD_INFO
+    echo "Repository: ${CI_PROJECT_PATH}/${CI_COMMIT_REF_NAME}" >> BUILD_INFO
+    echo "Commit: ${CI_COMMIT_SHA}" >> BUILD_INFO
+    echo "GitLab build: ${CI_PIPELINE_ID}" >> BUILD_INFO
+  }
 
 # Container Build Node Stage so the Conan package can be built for all platforms
 container_build_node:
   stage: container_build_node
   tags:
-    - dc-zone 
+    - dc-zone
     - docker
   parallel:
     matrix:
@@ -39,11 +46,13 @@ container_build_node:
         IMAGE: "registry.esss.lu.se/ecdc/ess-dmsc/docker-ubuntu2204-build-node:5.0.0"
         SHELL: "bash -e -x"
   image: $IMAGE
+  before_script:
+    - *fn_init
   script:
     - echo "Starting build job for $PROJECT_NAME on $CONTAINER"
     - |
       $SHELL <<EOF
-        $(printf '%s\n' "${!setup_conan[@]}")
+        setup_conan
         cd archiving
         ./generate-conanfile.sh "${CONAN_USER}" "${CONAN_PKG_CHANNEL}" 
 
@@ -62,7 +71,7 @@ container_build_node:
         rm conan*
         rm graph_info.json
 
-        $(printf '%s\n' "${!create_build_info[@]}")
+        create_build_info
       EOF
     - cd archiving
     - tar czvf ../epics.tar.gz epics
