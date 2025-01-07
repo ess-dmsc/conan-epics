@@ -5,6 +5,7 @@ variables:
   CONAN_USER: "ess-dmsc"
   CONAN_PKG_CHANNEL: "stable"
   PROJECT_NAME: "conan-epics"
+  TARGET_UPLOAD_CONTAINER: "centos7-gcc11"
 
 # Container Build Node Stage so the Conan package can be built for all platforms
 container_build_node:
@@ -48,7 +49,7 @@ container_build_node:
           echo "Skipping upload stage: only the master branch can upload to the stable channel"
         else
           # Upload conan packages if this is the target container
-          upload_packages_if_target_container "$CONTAINER" "centos7-gcc11" "$CONAN_USER" "$CONAN_PKG_CHANNEL" "../.."
+          upload_packages_if_target_container "$CONTAINER" "$TARGET_UPLOAD_CONTAINER" "$CONAN_USER" "$CONAN_PKG_CHANNEL" "../.."
         fi
 
         echo "Archiving build artifacts..."
