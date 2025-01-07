@@ -43,6 +43,10 @@ container_build_node:
         echo 'Conan installation...'
         conan install .. --build=missing
 
+
+        echo debug $CI_PIPELINE_SOURCE
+        echo debug $CI_COMMIT_REF_NAME
+
         # Upload conan packages if this is the target container
         if [[ "$CI_PIPELINE_SOURCE" == "merge_request_event" ]]; then
           echo "Skipping upload stage: merge request build'"
