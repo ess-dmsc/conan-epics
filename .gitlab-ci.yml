@@ -48,7 +48,7 @@ container_build_node:
           echo "Skipping upload stage: only the master branch can upload to the stable channel"
         else
           # Upload conan packages if this is the target container
-          #upload_packages_if_target_container "$CONTAINER" "centos7-gcc11" "$CONAN_USER" "$CONAN_PKG_CHANNEL" "../.."
+          upload_packages_if_target_container "$CONTAINER" "centos7-gcc11" "$CONAN_USER" "$CONAN_PKG_CHANNEL" "../.."
         fi
 
         echo "Archiving build artifacts..."
