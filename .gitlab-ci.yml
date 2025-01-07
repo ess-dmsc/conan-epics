@@ -5,7 +5,7 @@ variables:
   CONAN_USER: "ess-dmsc"
   CONAN_PKG_CHANNEL: "stable"
   PROJECT_NAME: "conan-epics"
-  TARGET_UPLOAD_CONTAINER: "centos7-gcc11"
+  TARGET_CONTAINER_UPLOAD_REMOTE: "centos7-gcc11"
 
 # Container Build Node Stage so the Conan package can be built for all platforms
 container_build_node:
@@ -34,7 +34,8 @@ container_build_node:
       $SHELL <<EOF
         # Sourcing GitLab CI functions
         source .ci_functions.sh
-        setup_conan "$conan_remote_name" "$conan_remote_url"
+        setup_conan "$conan_external_name" "$conan_external_url"
+        setup_conan "$conan_release_name" "$conan_release_url"
         cd archiving
         ./generate-conanfile.sh "${CONAN_USER}" "${CONAN_PKG_CHANNEL}" 
 
@@ -44,12 +45,17 @@ container_build_node:
         echo 'Conan installation...'
         conan install .. --build=missing
 
-        # Upload conan packages if this is the target container
+        # Upload conan packages
         if [[ "$CI_COMMIT_REF_NAME" != "master" ]]; then
           echo "Skipping upload stage: only the master branch can upload to the stable channel"
         else
-          # Upload conan packages if this is the target container
-          upload_packages_if_target_container "$CONTAINER" "$TARGET_UPLOAD_CONTAINER" "$CONAN_USER" "$CONAN_PKG_CHANNEL" "../.."
+          # Upload to Conan packages to Conan-External
+          upload_packages_to_conan_external "$CONAN_USER" "$CONAN_PKG_CHANNEL" "../.."
+
+          # Upload Conan packages to Conan-Release if this is ther target container
+          if [[ ""$CONTAINER" == "$TARGET_CONTAINER_UPLOAD_REMOTE" ]]; then
+            upload_packages_to_conan_release "$CONAN_USER" "$CONAN_PKG_CHANNEL" "../.."
+          fi
         fi
 
         echo "Archiving build artifacts..."
@@ -62,8 +68,10 @@ container_build_node:
     - cd archiving
     - tar czvf ../epics.tar.gz epics
   variables:
-    conan_remote_name: "ecdc-conan-external"
-    conan_remote_url: "https://artifactory.esss.lu.se/artifactory/api/conan/ecdc-conan-external"
+    conan_external_name: "ecdc-conan-external"
+    conan_external_url: "https://artifactory.esss.lu.se/artifactory/api/conan/ecdc-conan-external"
+    conan_release_name: "ecdc-conan-release"
+    conan_release_url: "https://artifactory.esss.lu.se/artifactory/api/conan/ecdc-conan-release"
 
   artifacts:
     paths:
