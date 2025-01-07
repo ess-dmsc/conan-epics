@@ -45,7 +45,7 @@ container_build_node:
 
         # Upload conan packages if this is the target container
         if [[ "$CI_COMMIT_REF_NAME" != "master" ]]; then
-          echo "Skipping upload stage: only the master branch can upload to the stable channel'"
+          echo "Skipping upload stage: only the master branch can upload to the stable channel"
         else
           # Upload conan packages if this is the target container
           upload_packages_if_target_container "$CONTAINER" "centos7-gcc11" "$CONAN_USER" "$CONAN_PKG_CHANNEL" "../.."
