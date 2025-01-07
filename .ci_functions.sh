@@ -5,20 +5,25 @@ setup_conan() {
 
     echo 'Setting up Conan...'
     conan remote add "$conan_name" "$conan_url" --force
-    conan user --password "$ESS_ARTIFACTORY_ECDC_CONAN_TOKEN" --remote ecdc-conan-external "$ESS_ARTIFACTORY_ECDC_CONAN_USER"
+    conan user --password "$ESS_ARTIFACTORY_ECDC_CONAN_TOKEN" --remote "$conan_name" "$ESS_ARTIFACTORY_ECDC_CONAN_USER"
 }
 
-upload_packages_if_target_container() {
-  local current_container=$1
-  local target_upload_container=$2
-  local conan_user=$3
-  local conan_pkg_channel=$4
-  local conan_file_path=$5
+upload_packages_to_conan_external() {
+  local conan_pkg_channel=$1
+  local conan_file_path=$2
 
-  if [[ "$current_container" == "$target_upload_container" ]]; then
-    packageNameAndVersion=$(conan inspect --attribute name --attribute version $conan_file_path | awk -F': ' '{print $2}' | paste -sd'/')
-    conan upload --all --no-overwrite --remote ecdc-conan-external ${packageNameAndVersion}@${conan_user}/${conan_pkg_channel}
-  fi
+  # Upload to Conan External
+  packageNameAndVersion=$(conan inspect --attribute name --attribute version $conan_file_path | awk -F': ' '{print $2}' | paste -sd'/')
+  conan upload --all --no-overwrite --remote ecdc-conan-external ${packageNameAndVersion}@${conan_user}/${conan_pkg_channel}
+}
+
+upload_packages_to_conan_release() {
+  local conan_pkg_channel=$1
+  local conan_file_path=$2
+
+  # Upload to Conan Release
+  packageNameAndVersion=$(conan inspect --attribute name --attribute version $conan_file_path | awk -F': ' '{print $2}' | paste -sd'/')
+  conan upload --no-overwrite --remote ecdc-conan-release ${packageNameAndVersion}@${conan_user}/${conan_pkg_channel}
 }
 
 create_build_info() {
