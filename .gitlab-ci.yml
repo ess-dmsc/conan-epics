@@ -6,6 +6,10 @@ variables:
   CONAN_PKG_CHANNEL: "stable"
   PROJECT_NAME: "conan-epics"
   TARGET_CONTAINER_UPLOAD_REMOTE: "centos7-gcc11"
+  CONAN_EXTERNAL_NAME: "ecdc-conan-external"
+  CONAN_EXTERNAL_URL: "https://artifactory.esss.lu.se/artifactory/api/conan/ecdc-conan-external"
+  CONAN_RELEASE_NAME: "ecdc-conan-release"
+  CONAN_RELEASE_URL: "https://artifactory.esss.lu.se/artifactory/api/conan/ecdc-conan-release"
 
 # Container Build Node Stage so the Conan package can be built for all platforms
 container_build_node:
@@ -34,8 +38,10 @@ container_build_node:
       $SHELL <<EOF
         # Sourcing GitLab CI functions
         source .ci_functions.sh
-        setup_conan "$conan_external_name" "$conan_external_url"
-        setup_conan "$conan_release_name" "$conan_release_url"
+
+        setup_conan "$CONAN_EXTERNAL_NAME" "$CONAN_EXTERNAL_URL"
+        setup_conan "$CONAN_RELEASE_NAME" "$CONAN_RELEASE_URL"
+        
         cd archiving
         ./generate-conanfile.sh "${CONAN_USER}" "${CONAN_PKG_CHANNEL}" 
 
@@ -67,11 +73,6 @@ container_build_node:
       EOF
     - cd archiving
     - tar czvf ../epics.tar.gz epics
-  variables:
-    conan_external_name: "ecdc-conan-external"
-    conan_external_url: "https://artifactory.esss.lu.se/artifactory/api/conan/ecdc-conan-external"
-    conan_release_name: "ecdc-conan-release"
-    conan_release_url: "https://artifactory.esss.lu.se/artifactory/api/conan/ecdc-conan-release"
 
   artifacts:
     paths:
