@@ -10,6 +10,23 @@ setup_conan() {
     conan user --password "$ESS_ARTIFACTORY_ECDC_CONAN_TOKEN" --remote "$conan_name" "$ESS_ARTIFACTORY_ECDC_CONAN_USER"
 }
 
+# Creates a Conan package from the specified path
+conan_package_creation() {
+    local conan_path=$1
+
+    echo 'Creating Conan package...'
+    conan create $conan_path ${CONAN_USER}/${CONAN_PKG_CHANNEL} --build=outdated 
+
+}
+
+# Installs Conan dependencies from the specified path
+conan_installation() {
+    local conan_path=$1
+
+    echo 'Conan installation...'
+    conan install $conan_path --build=missing
+}
+
 # Uploads packages to the external Conan repository
 upload_packages_to_conan_external() {
   local conan_file_path=$1

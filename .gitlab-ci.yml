@@ -49,10 +49,10 @@ container_build_node:
         cd epics
 
         echo 'Creating Conan package...'
-        conan create ../.. ${CONAN_USER}/${CONAN_PKG_CHANNEL} --build=outdated 
+        conan_package_creation "../.."
 
         echo 'Conan installation...'
-        conan install .. --build=missing
+        conan_installation ".."
 
         # Upload conan packages
         if [[ "$CI_COMMIT_REF_NAME" != "master" ]]; then
