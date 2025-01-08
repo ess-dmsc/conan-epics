@@ -12,18 +12,30 @@ upload_packages_to_conan_external() {
   local conan_pkg_channel=$1
   local conan_file_path=$2
 
+  # Save the current directory
+  local current_dir=$(pwd)
+
   # Upload to Conan External Artifactory
   packageNameAndVersion=$(conan inspect --attribute name --attribute version $conan_file_path | awk -F': ' '{print $2}' | paste -sd'/')
-  conan upload --all --no-overwrite --remote ecdc-conan-external ${packageNameAndVersion}@${conan_user}/${conan_pkg_channel} --build-folder="$conan_file_path"
+  (cd "$conan_file_path/.." && conan upload --all --no-overwrite --remote ecdc-conan-external ${packageNameAndVersion}@${conan_user}/${conan_pkg_channel})
+
+  # Return to the original directory
+  cd "$current_dir"
 }
 
 upload_packages_to_conan_release() {
   local conan_pkg_channel=$1
   local conan_file_path=$2
 
+  # Save the current directory
+  local current_dir=$(pwd)
+
   # Upload to Conan Release Artifactory
   packageNameAndVersion=$(conan inspect --attribute name --attribute version $conan_file_path | awk -F': ' '{print $2}' | paste -sd'/')
-  conan upload --no-overwrite --remote ecdc-conan-release ${packageNameAndVersion}@${conan_user}/${conan_pkg_channel} --build-folder="$conan_file_path"
+  (cd "$conan_file_path/.." && conan upload --no-overwrite --remote ecdc-conan-release ${packageNameAndVersion}@${conan_user}/${conan_pkg_channel})
+
+  # Return to the original directory
+  cd "$current_dir"
 }
 
 create_build_info() {
