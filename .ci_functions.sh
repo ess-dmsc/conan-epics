@@ -25,7 +25,7 @@ upload_packages_to_conan_release() {
 
   # Upload to Conan Release Artifactory
   packageNameAndVersion=$(conan inspect --attribute name --attribute version $conan_file_path | awk -F': ' '{print $2}' | paste -sd'/')
-  (cd "$conan_file_path" && conan upload --no-overwrite --remote ecdc-conan-release ${packageNameAndVersion}@${CONAN_USER}/${CONAN_PKG_CHANNEL}
+  conan upload --no-overwrite --remote ecdc-conan-release ${packageNameAndVersion}@${CONAN_USER}/${CONAN_PKG_CHANNEL}
 }
 
 # Creates a build info file with repository, commit, and pipeline details
