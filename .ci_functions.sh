@@ -14,7 +14,7 @@ upload_packages_to_conan_external() {
 
   # Upload to Conan External Artifactory
   packageNameAndVersion=$(conan inspect --attribute name --attribute version $conan_file_path | awk -F': ' '{print $2}' | paste -sd'/')
-  conan upload --all --no-overwrite --remote ecdc-conan-external ${packageNameAndVersion}@${conan_user}/${conan_pkg_channel}
+  conan upload --all --no-overwrite --remote ecdc-conan-external ${packageNameAndVersion}@${conan_user}/${conan_pkg_channel} --build-folder="$conan_file_path"
 }
 
 upload_packages_to_conan_release() {
@@ -23,7 +23,7 @@ upload_packages_to_conan_release() {
 
   # Upload to Conan Release Artifactory
   packageNameAndVersion=$(conan inspect --attribute name --attribute version $conan_file_path | awk -F': ' '{print $2}' | paste -sd'/')
-  conan upload --no-overwrite --remote ecdc-conan-release ${packageNameAndVersion}@${conan_user}/${conan_pkg_channel}
+  conan upload --no-overwrite --remote ecdc-conan-release ${packageNameAndVersion}@${conan_user}/${conan_pkg_channel} --build-folder="$conan_file_path"
 }
 
 create_build_info() {
