@@ -51,7 +51,7 @@ container_build_node:
         # Conan Package Options for its creation
         conan_package_options="epics:shared=False"
 
-        conan_package_creation "." "$conan_package_options"
+        conan_package_creation "../.." "$conan_package_options"
 
         conan_installation ".."
 
