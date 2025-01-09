@@ -35,7 +35,7 @@ container_build_node:
   script:
     - echo "Starting build job for $PROJECT_NAME on $CONTAINER"
     - |
-      $SHELL <<EOF
+      $SHELL <<'EOF'
         # Sourcing GitLab CI functions
         source .ci_functions.sh
 
@@ -48,21 +48,24 @@ container_build_node:
         mkdir epics
         cd epics
 
-        conan_package_creation "../.."
+        # Conan Package Options for its creation
+        conan_package_options="epics:shared=False"
+
+        conan_package_creation "." "$conan_package_options"
 
         conan_installation ".."
 
-        # Upload conan packages
-        if [[ "$CI_COMMIT_REF_NAME" != "master" ]]; then
-          echo "Skipping upload stage: only the master branch can upload to the stable channel"
-        else
-          # Upload to Conan packages to Conan-External
-          upload_packages_to_conan_external "../.."
+        # # Upload conan packages
+        # if [[ "$CI_COMMIT_REF_NAME" != "master" ]]; then
+        #   echo "Skipping upload stage: only the master branch can upload to the stable channel"
+        # else
+        #   # Upload to Conan packages to Conan-External
+        upload_packages_to_conan_external "../.."
 
-          # Upload Conan packages to Conan-Release if this is ther target container
-          if [[ "$CONTAINER" == "$TARGET_CONTAINER_TO_UPLOAD_REMOTE" ]]; then
-            upload_packages_to_conan_release "../.."
-          fi
+          # # Upload Conan packages to Conan-Release if this is ther target container
+          # if [[ "$CONTAINER" == "$TARGET_CONTAINER_TO_UPLOAD_REMOTE" ]]; then
+        upload_packages_to_conan_release "../.."
+          # fi
         fi
 
         echo "Archiving build artifacts..."

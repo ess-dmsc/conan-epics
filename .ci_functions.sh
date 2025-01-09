@@ -13,10 +13,10 @@ setup_conan() {
 # Creates a Conan package from the specified path
 conan_package_creation() {
     local conan_path=$1
+    local conan_options=${2:-""}
 
     echo 'Creating Conan package...'
-    conan create $conan_path ${CONAN_USER}/${CONAN_PKG_CHANNEL} --build=outdated 
-
+    conan create $conan_path ${CONAN_USER}/${CONAN_PKG_CHANNEL} --build=outdated --settings $conan_options
 }
 
 # Installs Conan dependencies from the specified path
@@ -31,7 +31,7 @@ conan_installation() {
 upload_packages_to_conan_external() {
   local conan_file_path=$1
 
-  # Upload to Conan External Artifactory
+  echo 'Uploading packages to Conan External Artifactory...'
   packageNameAndVersion=$(conan inspect --attribute name --attribute version $conan_file_path | awk -F': ' '{print $2}' | paste -sd'/')
   conan upload --all --no-overwrite --remote ecdc-conan-external ${packageNameAndVersion}@${CONAN_USER}/${CONAN_PKG_CHANNEL}
 }
@@ -40,7 +40,7 @@ upload_packages_to_conan_external() {
 upload_packages_to_conan_release() {
   local conan_file_path=$1
 
-  # Upload to Conan Release Artifactory
+  echo 'Uploading packages to Conan Release Artifactory...'
   packageNameAndVersion=$(conan inspect --attribute name --attribute version $conan_file_path | awk -F': ' '{print $2}' | paste -sd'/')
   conan upload --no-overwrite --remote ecdc-conan-release ${packageNameAndVersion}@${CONAN_USER}/${CONAN_PKG_CHANNEL}
 }
