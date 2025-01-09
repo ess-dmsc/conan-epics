@@ -16,7 +16,7 @@ conan_package_creation() {
     local conan_options=${2:-""}
 
     echo 'Creating Conan package...'
-    conan create $conan_path ${CONAN_USER}/${CONAN_PKG_CHANNEL} --build=outdated --settings $conan_options
+    conan create $conan_path ${CONAN_USER}/${CONAN_PKG_CHANNEL} --build=outdated --options $conan_options
 }
 
 # Installs Conan dependencies from the specified path
