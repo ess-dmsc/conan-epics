@@ -76,8 +76,10 @@ container_build_node:
         create_build_info
       EOF
     - cd archiving
-    - tar czvf ../epics.tar.gz epics.tar.gz 
+    - tar czvf ../epics.tar.gz epics
     - pwd
+    - ls
+    - cd ..
     - ls
   artifacts:
     name: "epics"
