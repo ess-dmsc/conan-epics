@@ -78,9 +78,8 @@ container_build_node:
     - cd archiving
     - tar czvf ../epics.tar.gz epics
   artifacts:
-    name: "epics"
-    paths:
-      - epics.tar.gz
+    reports:
+      archive: epics.tar.gz
     expire_in: 1 month
   rules:
     # Automatically trigger on merge request pipelines with new commits
