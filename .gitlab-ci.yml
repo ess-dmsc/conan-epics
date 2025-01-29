@@ -77,15 +77,15 @@ container_build_node:
       EOF
     - cd archiving
     - tar czvf ../epics.tar.gz epics
-
   artifacts:
+    name: "epics"
     paths:
       - epics.tar.gz
     expire_in: 1 month
-    untracked: false
-    when: always
-    
-# Clean up after the build
-after_script:
-  - echo "Cleaning workspace"
-  - rm -rf epics
+  rules:
+    # Automatically trigger on merge request pipelines with new commits
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    # Automatically trigger when the merge request is merged
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "master"'
+    # Allow manual execution in other scenarios
+    - when: manual
