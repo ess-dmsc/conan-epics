@@ -82,7 +82,9 @@ container_build_node:
     paths:
       - epics.tar.gz
     expire_in: 1 month
-
+    untracked: false
+    when: always
+    
 # Clean up after the build
 after_script:
   - echo "Cleaning workspace"
